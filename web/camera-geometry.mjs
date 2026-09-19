@@ -7,11 +7,12 @@ export function coverCrop(sourceWidth,sourceHeight,viewWidth,viewHeight){
   return {x:(sourceWidth-width)/2,y:(sourceHeight-height)/2,width,height};
 }
 
-export function cameraConstraints(viewWidth,viewHeight){
+export function cameraConstraints(viewWidth,viewHeight,deviceId=''){
   const aspect=viewWidth>0&&viewHeight>0?viewWidth/viewHeight:9/16;
   const scale=1280/Math.max(aspect,1);
   return {
-    facingMode:{ideal:'environment'},
+    // Exact device selection must not be biased toward a different facing mode.
+    ...(deviceId?{deviceId:{exact:deviceId}}:{facingMode:{ideal:'environment'}}),
     width:{ideal:Math.round(aspect*scale)},
     height:{ideal:Math.round(scale)},
     aspectRatio:{ideal:aspect},

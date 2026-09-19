@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b0e">
   <title>摄像头 · SegFormer</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b1118'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%239fd0ff' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css?v=portrait-1">
+  <link rel="stylesheet" href="./style.css?v=cameras-1">
 </head>
 <body>
   <main class="camera-view camera-input" aria-label="摄像头主界面">
@@ -24,7 +24,7 @@
         <div><span>总耗时 <small>ms</small></span><strong id="total">—</strong></div>
         <div><span>帧数</span><strong id="frames">0</strong></div>
       </div>
-      <div class="configuration"><span id="source-label">后置摄像头</span><span id="config-summary">192 × 320 · 阈值 0.55</span></div>
+      <div class="configuration"><span id="source-label">摄像头 · 自动</span><span id="config-summary">192 × 320 · 阈值 0.55</span></div>
       <div class="configuration secondary"><span id="device">SegFormer-B0 · AUTO</span><span>方向 <b id="direction">—</b></span></div>
       <p id="status" role="status" aria-live="polite">摄像头初始化</p>
     </section>
@@ -37,7 +37,12 @@
     <form id="settings-form">
       <div class="dialog-heading"><h1 id="settings-title">设置</h1><button type="button" id="close-settings" class="icon-button" aria-label="关闭设置">×</button></div>
       <div class="settings-content">
-        <div class="field"><label for="input-source">输入源</label><select id="input-source"><option value="camera">后置摄像头</option><option value="sample">内置测试视频</option><option value="file">本地视频文件</option></select></div>
+        <div class="field"><label for="input-source">输入源</label><select id="input-source"><option value="camera">摄像头</option><option value="sample">内置测试视频</option><option value="file">本地视频文件</option></select></div>
+        <div id="camera-field" class="field">
+          <label for="camera-device">摄像头设备</label>
+          <div class="camera-picker"><select id="camera-device" aria-describedby="camera-help"><option value="">自动（优先后置）</option></select><button type="button" id="refresh-cameras">刷新</button></div>
+          <span id="camera-help" class="help">授权后显示浏览器提供的镜头列表。</span>
+        </div>
         <div id="file-field" class="field" hidden><label for="file">视频文件</label><input id="file" type="file" accept="video/*"><span id="file-name" class="help">未选择文件</span></div>
         <div class="field"><label for="backend">推理后端</label><select id="backend"><option value="auto">AUTO · WebGPU 优先</option><option value="webgpu">WebGPU · GPU</option><option value="wasm">WASM · CPU</option></select></div>
         <div class="field"><label for="profile">输入分辨率</label><select id="profile"><option value="fast">192 × 320</option><option value="quality">288 × 512</option></select></div>
@@ -50,6 +55,6 @@
       <div class="dialog-actions"><button type="button" id="cancel-settings">取消</button><button type="submit" class="apply">应用</button></div>
     </form>
   </dialog>
-  <script type="module" src="./app.mjs?v=portrait-1"></script>
+  <script type="module" src="./app.mjs?v=cameras-1"></script>
 </body>
 </html>

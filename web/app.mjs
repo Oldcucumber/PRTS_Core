@@ -1,4 +1,4 @@
-import {coverCrop,cameraConstraints} from './camera-geometry.mjs';
+import {coverCrop,cameraConstraints} from './camera-geometry.mjs?v=cameras-1';
 
 const $=id=>document.getElementById(id);
 const view=document.querySelector('.camera-view');
@@ -7,7 +7,11 @@ const capture=document.createElement('canvas'), captureCtx=capture.getContext('2
 const resize=document.createElement('canvas'), resizeCtx=resize.getContext('2d',{willReadFrequently:true});
 const maskCanvas=document.createElement('canvas'), maskCtx=maskCanvas.getContext('2d');
 const dialog=$('settings-dialog');
-let options={source:'camera',backend:'auto',profile:'fast',threshold:.55,file:null};
+const cameraPreferenceKey='floor-lab.camera-device';
+function savedCamera(){try{return localStorage.getItem(cameraPreferenceKey)||'';}catch{return '';}}
+function saveCamera(deviceId){try{if(deviceId)localStorage.setItem(cameraPreferenceKey,deviceId);else localStorage.removeItem(cameraPreferenceKey);}catch{}}
+let options={source:'camera',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,file:null};
+let cameraDevices=[],cameraRefresh=0,activeCameraId='',activeCameraLabel='';
 let draftFile=null;
 let worker=null,stream=null,objectURL=null,generation=0,frameId=0,running=false,busy=false;
 let config=null,capturedAt=0,lastFrameTime=-1,timer=null,lastResultAt=0,fps=0;
@@ -17,9 +21,41 @@ const stats={frames:0,backend:null,direction:'UNKNOWN',inferenceMs:0,totalMs:0,f
 window.floorLabStats=stats;
 
 function status(message){$('status').textContent=message;}
+function cameraName(){
+  if(activeCameraLabel)return activeCameraLabel;
+  const match=cameraDevices.find(d=>d.deviceId===(activeCameraId||options.cameraId));
+  return match?.label||(options.cameraId?'已选摄像头':'摄像头 · 自动');
+}
+function cameraChoices(selected){
+  const select=$('camera-device');
+  select.replaceChildren(new Option('自动（优先后置）',''));
+  for(const device of cameraDevices){
+    select.add(new Option(device.label+(device.deviceId===activeCameraId?' · 当前':''),device.deviceId));
+  }
+  // Keep an unavailable explicit choice visible; never silently change lenses.
+  if(selected&&!cameraDevices.some(d=>d.deviceId===selected))select.add(new Option('已选设备（未出现在列表中）',selected));
+  select.value=selected;
+}
+async function refreshCameras(){
+  const request=++cameraRefresh;
+  $('refresh-cameras').disabled=true;
+  try{
+    if(!navigator.mediaDevices?.enumerateDevices)throw new Error('当前浏览器无法列出摄像头');
+    const devices=await navigator.mediaDevices.enumerateDevices();
+    if(request!==cameraRefresh)return;
+    cameraDevices=devices.filter(d=>d.kind==='videoinput'&&d.deviceId).map((d,i)=>({deviceId:d.deviceId,label:d.label||`摄像头 ${i+1}`}));
+    cameraChoices(dialog.open?$('camera-device').value:options.cameraId);
+    $('camera-help').textContent=cameraDevices.length
+      ?`检测到 ${cameraDevices.length} 个设备。名称由浏览器提供，选择后点击应用。若未列出其他镜头，浏览器可能未开放。`
+      :'未列出摄像头。请先允许摄像头权限，再点击刷新。';
+    updateConfig();
+  }catch(error){if(request===cameraRefresh)$('camera-help').textContent=`无法刷新列表：${error.message}`;}
+  finally{if(request===cameraRefresh)$('refresh-cameras').disabled=false;}
+}
 function updateConfig(){
   view.classList.toggle('camera-input',options.source==='camera');
-  $('source-label').textContent=options.source==='camera'?'后置摄像头':options.source==='sample'?'内置测试视频':options.file?.name||'本地视频';
+  $('source-label').textContent=options.source==='camera'?cameraName():options.source==='sample'?'内置测试视频':options.file?.name||'本地视频';
+  $('source-label').title=$('source-label').textContent;
   $('config-summary').textContent=`${options.profile==='fast'?'192 × 320':'288 × 512'} · 阈值 ${options.threshold.toFixed(2)}`;
   if(!stats.ready){
     $('backend-badge').textContent=options.backend==='auto'?'AUTO':options.backend==='webgpu'?'WebGPU':'WASM';
@@ -35,6 +71,7 @@ function stop(message='已停止'){
   generation++;running=false;busy=false;clearTimeout(timer);
   worker?.terminate();worker=null;
   stream?.getTracks().forEach(t=>t.stop());stream=null;
+  activeCameraId='';activeCameraLabel='';
   video.pause();video.srcObject=null;video.removeAttribute('src');video.load();
   if(objectURL)URL.revokeObjectURL(objectURL);objectURL=null;
   config=null;inputPromise=null;inputReady=false;stats.ready=false;
@@ -52,6 +89,7 @@ function resetStats(){
 }
 function inputError(error){
   if(error.name==='NotAllowedError')return '摄像头权限被拒绝。可在浏览器中授权后重试，或在设置中切换视频输入。';
+  if((error.name==='NotFoundError'||error.name==='OverconstrainedError')&&options.cameraId)return '所选摄像头不可用，请在设置中选择其他设备或“自动”。';
   if(error.name==='NotFoundError')return '未检测到摄像头。可在设置中切换视频输入。';
   if(error.name==='NotReadableError')return '摄像头不可读取，可能被其他应用占用。';
   return String(error.message||error);
@@ -68,10 +106,13 @@ function ensureInput(){
     try{
       if(options.source==='camera'){
         if(!isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new Error('摄像头需要 HTTPS 或本机 localhost。');
-        const newStream=await navigator.mediaDevices.getUserMedia({audio:false,video:cameraConstraints(view.clientWidth,view.clientHeight)});
+        const newStream=await navigator.mediaDevices.getUserMedia({audio:false,video:cameraConstraints(view.clientWidth,view.clientHeight,options.cameraId)});
         if(token!==generation){newStream.getTracks().forEach(t=>t.stop());return false;}
         stream=newStream;video.srcObject=stream;
-        stream.getVideoTracks()[0].addEventListener('ended',()=>{if(token===generation)fail('摄像头已断开');});
+        const track=stream.getVideoTracks()[0];
+        activeCameraId=track.getSettings().deviceId||options.cameraId;activeCameraLabel=track.label;
+        updateConfig();void refreshCameras();
+        track.addEventListener('ended',()=>{if(token===generation)fail('摄像头已断开，请在设置中选择可用设备。');});
       }else if(options.source==='file'){
         if(!options.file)throw new Error('未选择视频文件');
         objectURL=URL.createObjectURL(options.file);video.src=objectURL;
@@ -177,24 +218,29 @@ function openSettings(){
   $('input-source').value=options.source;$('backend').value=options.backend;$('profile').value=options.profile;
   $('threshold').value=options.threshold;$('threshold-value').textContent=options.threshold.toFixed(2);
   draftFile=options.file;$('file').value='';$('file-name').textContent=draftFile?.name||'未选择文件';
-  $('file-field').hidden=options.source!=='file';$('settings-error').textContent='';dialog.showModal();
+  $('file-field').hidden=options.source!=='file';$('camera-field').hidden=options.source!=='camera';
+  cameraChoices(options.cameraId);$('settings-error').textContent='';dialog.showModal();void refreshCameras();
 }
 $('start').onclick=()=>running?stop():start();
 $('settings').onclick=openSettings;
 $('close-settings').onclick=()=>dialog.close();
 $('cancel-settings').onclick=()=>dialog.close();
-$('input-source').onchange=()=>{$('file-field').hidden=$('input-source').value!=='file';};
+$('input-source').onchange=()=>{
+  $('file-field').hidden=$('input-source').value!=='file';$('camera-field').hidden=$('input-source').value!=='camera';
+  if($('input-source').value==='camera')void refreshCameras();
+};
+$('refresh-cameras').onclick=()=>{void refreshCameras();};
 $('file').onchange=e=>{draftFile=e.target.files[0]||draftFile;$('file-name').textContent=draftFile?.name||'未选择文件';};
 $('threshold').oninput=()=>{$('threshold-value').textContent=Number($('threshold').value).toFixed(2);};
 $('settings-form').onsubmit=async event=>{
   event.preventDefault();
-  const next={source:$('input-source').value,backend:$('backend').value,profile:$('profile').value,threshold:Number($('threshold').value),file:draftFile};
+  const next={source:$('input-source').value,cameraId:$('camera-device').value,backend:$('backend').value,profile:$('profile').value,threshold:Number($('threshold').value),file:draftFile};
   if(next.source==='file'&&!next.file){$('settings-error').textContent='请选择视频文件';return;}
-  const restart=next.source!==options.source||next.backend!==options.backend||next.profile!==options.profile||(next.source==='file'&&next.file!==options.file);
+  const restart=next.source!==options.source||next.backend!==options.backend||next.profile!==options.profile||(next.source==='file'&&next.file!==options.file)||(next.source==='camera'&&next.cameraId!==options.cameraId);
   const wasRunning=running;
   dialog.close();
   if(restart)stop('配置已更新');
-  options=next;updateConfig();
+  options=next;saveCamera(options.cameraId);updateConfig();
   if(restart){if(wasRunning)await start();else await ensureInput();}
 };
 video.addEventListener('error',()=>{if(running||inputPromise||inputReady)fail('视频解码失败，请选择浏览器支持的 MP4 / WebM 文件。');});
@@ -207,6 +253,7 @@ function invalidateView(){
 }
 new ResizeObserver(invalidateView).observe(view);
 video.addEventListener('resize',invalidateView);
+navigator.mediaDevices?.addEventListener('devicechange',()=>{void refreshCameras();});
 // Preview also owns camera resources. Release both preview and inference in background.
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(running||inputPromise||inputReady))stop('页面已进入后台，摄像头与推理已停止');});
 window.addEventListener('pagehide',()=>stop());

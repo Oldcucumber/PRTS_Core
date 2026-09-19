@@ -9,3 +9,4 @@
 @media(max-height:500px) and (orientation:landscape){.hud{top:12px;left:14px;transform:none;width:340px;padding:10px 14px}.metrics{margin:10px 0}.metrics strong{font-size:20px}.toolbar{left:auto;right:18px;transform:none;width:240px;bottom:18px}}
 /* Camera preview and inference use the same centered viewport crop. */
 .camera-input #source,.camera-input #result{object-fit:cover;object-position:50% 50%}
+.camera-picker{display:flex;gap:8px;align-items:stretch}.camera-picker select{flex:1;min-width:0}.camera-picker button{flex-shrink:0;padding:0 13px;color:#dce6ef;background:#23313e;border:1px solid #34414e;border-radius:8px;font-size:12px}.camera-picker button:hover:enabled{background:#304456}#camera-help{margin:0}

@@ -28,3 +28,9 @@ test('request native portrait or landscape without hard device constraints',()=>
   assert.equal(portrait.facingMode.ideal,'environment');
   assert.equal(portrait.resizeMode.ideal,'crop-and-scale');
 });
+test('explicit camera uses exact device ID without a rear-facing preference',()=>{
+  const constraints=cameraConstraints(390,844,'front-or-wide-camera');
+  assert.deepEqual(constraints.deviceId,{exact:'front-or-wide-camera'});
+  assert.equal('facingMode' in constraints,false);
+  assert.equal('deviceId' in cameraConstraints(390,844),false);
+});
