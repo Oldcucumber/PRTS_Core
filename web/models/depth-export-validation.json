@@ -1,0 +1,40 @@
+{
+  "model": "depth-anything/Depth-Anything-V2-Small-hf",
+  "input_size": 252,
+  "bytes": 99117596,
+  "meaning": "relative inverse depth; larger means nearer; not meters",
+  "frames": [
+    {
+      "frame": 0,
+      "max_absolute_error": 5.173683166503906e-05,
+      "relative_error": 9.525851404795305e-06,
+      "inference_ms": 121.66550000256393,
+      "min": 0.07527393847703934,
+      "max": 5.431205749511719
+    },
+    {
+      "frame": 90,
+      "max_absolute_error": 3.4689903259277344e-05,
+      "relative_error": 5.108087840855154e-06,
+      "inference_ms": 122.34050000552088,
+      "min": 0.10057571530342102,
+      "max": 6.791173458099365
+    },
+    {
+      "frame": 180,
+      "max_absolute_error": 5.793571472167969e-05,
+      "relative_error": 6.2477535083835594e-06,
+      "inference_ms": 104.99360000540037,
+      "min": 0.2795538008213043,
+      "max": 9.27304458618164
+    },
+    {
+      "frame": 270,
+      "max_absolute_error": 0.00010263919830322266,
+      "relative_error": 1.1393106146592676e-05,
+      "inference_ms": 105.50360000343062,
+      "min": 0.0,
+      "max": 9.008891105651855
+    }
+  ]
+}

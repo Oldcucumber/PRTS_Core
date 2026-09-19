@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#080b0e">
   <title>摄像头 · SegFormer</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b1118'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%239fd0ff' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css?v=full-frame-1">
+  <link rel="stylesheet" href="./style.css?v=depth-1">
 </head>
 <body>
   <main class="camera-view" aria-label="摄像头主界面">
@@ -26,6 +26,7 @@
       </div>
       <div class="configuration"><span id="source-label">摄像头 · 自动</span><span id="config-summary">192 × 320 · 阈值 0.55</span></div>
       <div class="configuration secondary"><span id="device">SegFormer-B0 · AUTO</span><span>方向 <b id="direction">—</b></span></div>
+      <div class="configuration secondary"><span id="pipeline">仅分割</span><span id="depth-metric">深度：关闭</span></div>
       <p id="status" role="status" aria-live="polite">摄像头初始化</p>
     </section>
     <nav class="toolbar" aria-label="运行控制">
@@ -46,6 +47,8 @@
         <div id="file-field" class="field" hidden><label for="file">视频文件</label><input id="file" type="file" accept="video/*"><span id="file-name" class="help">未选择文件</span></div>
         <div class="field"><label for="backend">推理后端</label><select id="backend"><option value="auto">AUTO · WebGPU 优先</option><option value="webgpu">WebGPU · GPU</option><option value="wasm">WASM · CPU</option></select></div>
         <div class="field"><label for="profile">输入分辨率</label><select id="profile"><option value="fast">192 × 320</option><option value="quality">288 × 512</option></select></div>
+        <div class="field"><label class="switch-label" for="depth-enabled"><span>深度辅助（实验）</span><input id="depth-enabled" type="checkbox" role="switch"></label><span class="help">Depth Anything V2 Small · 相对深度，非米制距离。开启后与分割处理同一帧。</span></div>
+        <div id="depth-view-field" class="field" hidden><label for="depth-view">显示方式</label><select id="depth-view"><option value="overlay">融合结果 · 橙色为深度排除区域</option><option value="compare">左右对比 · 仅分割 / 分割＋深度</option><option value="depth">相对深度 · 蓝远橙近</option></select></div>
         <div class="field"><div class="range-label"><label for="threshold">地面概率阈值</label><output id="threshold-value">0.55</output></div><input id="threshold" type="range" min="0.30" max="0.90" value="0.55" step="0.05"></div>
         <dl class="model-info"><div><dt>模型</dt><dd>SegFormer-B0 / ADE20K</dd></div><div><dt>执行环境</dt><dd>ONNX Runtime Web / Worker</dd></div></dl>
         <p class="help">画面处理：完整视野，等比缩放，不裁切。比例不一致时留边。</p>
@@ -56,6 +59,6 @@
       <div class="dialog-actions"><button type="button" id="cancel-settings">取消</button><button type="submit" class="apply">应用</button></div>
     </form>
   </dialog>
-  <script type="module" src="./app.mjs?v=full-frame-1"></script>
+  <script type="module" src="./app.mjs?v=depth-1"></script>
 </body>
 </html>

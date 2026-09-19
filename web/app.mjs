@@ -10,7 +10,7 @@ const dialog=$('settings-dialog');
 const cameraPreferenceKey='floor-lab.camera-device';
 function savedCamera(){try{return localStorage.getItem(cameraPreferenceKey)||'';}catch{return '';}}
 function saveCamera(deviceId){try{if(deviceId)localStorage.setItem(cameraPreferenceKey,deviceId);else localStorage.removeItem(cameraPreferenceKey);}catch{}}
-let options={source:'camera',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,file:null};
+let options={source:'camera',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,file:null,depthEnabled:false,depthView:'overlay'};
 let cameraDevices=[],cameraRefresh=0,activeCameraId='',activeCameraLabel='';
 let draftFile=null;
 let worker=null,stream=null,objectURL=null,generation=0,frameId=0,running=false,busy=false;
@@ -53,6 +53,8 @@ async function refreshCameras(){
   finally{if(request===cameraRefresh)$('refresh-cameras').disabled=false;}
 }
 function updateConfig(){
+  $('pipeline').textContent=options.depthEnabled?'分割＋深度 · DA-V2 Small':'仅分割';
+  if(!stats.ready)$('depth-metric').textContent=options.depthEnabled?'深度：待启动':'深度：关闭';
   $('source-label').textContent=options.source==='camera'?cameraName():options.source==='sample'?'内置测试视频':options.file?.name||'本地视频';
   $('source-label').title=$('source-label').textContent;
   $('config-summary').textContent=`${options.profile==='fast'?'192 × 320':'288 × 512'} · 阈值 ${options.threshold.toFixed(2)}`;
@@ -84,6 +86,7 @@ function stop(message='已停止'){
 function fail(message){stats.errors.push(message);stop(message);$('run-state').textContent='错误';$('preview-state').textContent='输入或推理不可用';}
 function resetStats(){
   Object.assign(stats,{frames:0,backend:null,direction:'UNKNOWN',inferenceMs:0,totalMs:0,fps:0,errors:[],ready:false,samples:[]});
+  Object.assign(stats,{depthEnabled:false,depthMs:0,depthRemovedFraction:0,depthFit:null});
   lastResultAt=0;fps=0;lastFrameTime=-1;$('frames').textContent='0';$('fps').textContent='—';$('latency').textContent='—';$('total').textContent='—';
 }
 function inputError(error){
@@ -136,7 +139,7 @@ async function start(){
   const mode=options.backend,profile=options.profile;
   $('run-state').textContent='加载中';$('backend-badge').textContent='加载模型';
   try{
-    worker=new Worker(new URL('./inference.worker.mjs?v=full-frame-1',import.meta.url),{type:'module'});
+    worker=new Worker(new URL('./inference.worker.mjs?v=depth-1',import.meta.url),{type:'module'});
     worker.onerror=e=>{if(token===generation)fail(`推理模块加载失败：${e.message}`);};
     worker.onmessage=({data})=>{
       if(token!==generation)return;
@@ -162,16 +165,33 @@ async function start(){
         if(lastResultAt){const value=1000/(now-lastResultAt);fps=fps?fps*.75+value*.25:value;}
         lastResultAt=now;
         Object.assign(stats,{frames:stats.frames+1,backend:data.backend,direction:data.direction,inferenceMs:data.inferenceMs,totalMs:now-capturedAt,fps,floorFraction:data.fraction});
+        Object.assign(stats,{segmentationMs:data.segmentationMs,depthMs:data.depthMs,depthEnabled:!!data.depth,depthBackend:data.depth?.backend||null,
+          baselineDirection:data.baseline?.direction||data.direction,baselineFloorFraction:data.baseline?.fraction??data.fraction,
+          depthRemovedFraction:data.depth?.removedFraction||0,depthFit:data.depth?.fit||null});
+        $('depth-metric').textContent=data.depth?`${Math.round(data.depthMs)} ms · 排除 ${(data.depth.removedFraction*100).toFixed(1)}%`:'深度：关闭';
+        $('pipeline').textContent=data.depth?`${options.depthView==='compare'?'左：分割 / 右：＋深度':'分割＋深度'} · ${data.depth.backend.toUpperCase()}${data.depth.fit.valid?'':' · 趋势未采用'}`:'仅分割';
+        $('pipeline').title=data.depth?`Depth Anything V2 Small · 252 × 252${data.depth.fit.valid?'':` · ${data.depth.fit.reason}`}`:'SegFormer-B0';
         stats.samples.push({time:now,inferenceMs:data.inferenceMs,totalMs:stats.totalMs});
         if(stats.samples.length>300)stats.samples.shift();
         $('frames').textContent=stats.frames;$('fps').textContent=fps?fps.toFixed(1):'—';$('latency').textContent=Math.round(data.inferenceMs);$('total').textContent=Math.round(stats.totalMs);
         schedule();
       }
     };
-    worker.postMessage({type:'init',mode,profile});
+    worker.postMessage({type:'init',mode,profile,depthEnabled:options.depthEnabled});
   }catch(error){if(token===generation)fail(String(error.message||error));}
 }
 function schedule(){if(running)timer=setTimeout(tick,0);}
+function prepareInput(width,height){
+  resize.width=width;resize.height=height;
+  const fit=containRect(capture.width,capture.height,width,height);
+  resizeCtx.fillStyle='rgb(124,116,104)';resizeCtx.fillRect(0,0,width,height);
+  resizeCtx.drawImage(capture,fit.x,fit.y,fit.width,fit.height);
+  const contentRect={x:fit.x/width,y:fit.y/height,width:fit.width/width,height:fit.height/height};
+  const pixels=resizeCtx.getImageData(0,0,width,height).data,n=width*height,input=new Float32Array(n*3);
+  const mean=[.485,.456,.406],std=[.229,.224,.225];
+  for(let i=0;i<n;i++)for(let c=0;c<3;c++)input[c*n+i]=(pixels[i*4+c]/255-mean[c])/std[c];
+  return {input,contentRect};
+}
 function tick(){
   if(!running||busy||!config)return;
   if(video.readyState<2||video.paused||video.currentTime===lastFrameTime){timer=setTimeout(tick,20);return;}
@@ -183,41 +203,55 @@ function tick(){
   capturedViewRevision=viewRevision;
   capture.width=w;capture.height=h;
   captureCtx.drawImage(video,0,0,w,h);
-  resize.width=config.width;resize.height=config.height;
-  const fit=containRect(w,h,resize.width,resize.height);
-  // Neutral padding instead of stretching or cropping to the model's aspect ratio.
-  resizeCtx.fillStyle='rgb(124,116,104)';resizeCtx.fillRect(0,0,resize.width,resize.height);
-  resizeCtx.drawImage(capture,fit.x,fit.y,fit.width,fit.height);
-  const contentRect={x:fit.x/resize.width,y:fit.y/resize.height,width:fit.width/resize.width,height:fit.height/resize.height};
-  const pixels=resizeCtx.getImageData(0,0,resize.width,resize.height).data;
-  const n=resize.width*resize.height,input=new Float32Array(n*3),mean=[.485,.456,.406],std=[.229,.224,.225];
-  for(let i=0;i<n;i++)for(let c=0;c<3;c++)input[c*n+i]=(pixels[i*4+c]/255-mean[c])/std[c];
+  const {input,contentRect}=prepareInput(config.width,config.height);
+  const depthInput=options.depthEnabled?prepareInput(config.depthSize,config.depthSize):null;
   busy=true;frameId++;
-  worker.postMessage({type:'infer',id:frameId,input,contentRect,threshold:options.threshold,mode:options.backend},[input.buffer]);
+  const transfers=[input.buffer];if(depthInput)transfers.push(depthInput.input.buffer);
+  worker.postMessage({type:'infer',id:frameId,input,contentRect,depthInput:depthInput?.input,depthContentRect:depthInput?.contentRect,threshold:options.threshold,mode:options.backend},transfers);
 }
-function render(data){
-  canvas.width=capture.width; canvas.height=capture.height;
-  ctx.drawImage(capture,0,0);
+function drawResult(data,depth,style,offset=0,label=''){
+  const w=capture.width,h=capture.height;
+  ctx.save();ctx.translate(offset,0);ctx.drawImage(capture,0,0);
   maskCanvas.width=data.width;maskCanvas.height=data.height;
   const image=maskCtx.createImageData(data.width,data.height);
-  for(let i=0;i<data.region.length;i++) if(data.region[i]) {image.data[i*4]=66;image.data[i*4+1]=228;image.data[i*4+2]=115;image.data[i*4+3]=85;}
-  maskCtx.putImageData(image,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(maskCanvas,0,0,canvas.width,canvas.height);ctx.imageSmoothingEnabled=true;
-  const sx=canvas.width/data.width,sy=canvas.height/data.height;
-  if(data.points.length>1){ctx.beginPath();data.points.forEach(([x,y],i)=>i?ctx.lineTo(x*sx,y*sy):ctx.moveTo(x*sx,y*sy));ctx.strokeStyle='#ffda69';ctx.lineWidth=Math.max(3,canvas.width/150);ctx.lineJoin='round';ctx.stroke();}
+  for(let i=0;i<data.region.length;i++){
+    let color=null;
+    if(depth&&style==='depth'){
+      const v=depth.heat[i]/255;
+      color=[40+v*210,100+(1-Math.abs(2*v-1))*80,240-v*200,200];
+    }else if(depth?.excluded[i])color=[255,125,45,170];
+    else if(data.region[i])color=[66,228,115,85];
+    if(color)image.data.set(color,i*4);
+  }
+  maskCtx.putImageData(image,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(maskCanvas,0,0,w,h);ctx.imageSmoothingEnabled=true;
+  const sx=w/data.width,sy=h/data.height;
+  if(data.points.length>1){ctx.beginPath();data.points.forEach(([x,y],i)=>i?ctx.lineTo(x*sx,y*sy):ctx.moveTo(x*sx,y*sy));ctx.strokeStyle='#ffda69';ctx.lineWidth=Math.max(3,w/150);ctx.lineJoin='round';ctx.stroke();}
   if(data.target){
     const [ax,ay]=data.points[0], [bx,by]=data.target, x1=ax*sx,y1=ay*sy,x2=bx*sx,y2=by*sy;
-    const angle=Math.atan2(y2-y1,x2-x1), head=Math.max(15,canvas.width*.045);
-    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.moveTo(x2-head*Math.cos(angle-.55),y2-head*Math.sin(angle-.55));ctx.lineTo(x2,y2);ctx.lineTo(x2-head*Math.cos(angle+.55),y2-head*Math.sin(angle+.55));ctx.strokeStyle='#59c4ff';ctx.lineWidth=Math.max(4,canvas.width/130);ctx.stroke();
+    const angle=Math.atan2(y2-y1,x2-x1),head=Math.max(15,w*.045);
+    ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.moveTo(x2-head*Math.cos(angle-.55),y2-head*Math.sin(angle-.55));ctx.lineTo(x2,y2);ctx.lineTo(x2-head*Math.cos(angle+.55),y2-head*Math.sin(angle+.55));ctx.strokeStyle='#59c4ff';ctx.lineWidth=Math.max(4,w/130);ctx.stroke();
   }
-  canvas.style.display='block';video.style.visibility='hidden';$('empty').hidden=true;
-  const labels={LEFT:['↖','偏左'],RIGHT:['↗','偏右'],FORWARD:['↑','向前'],UNKNOWN:['—','暂无法判断']};
-  $('direction').textContent=labels[data.direction][1];
+  if(label){
+    const size=Math.max(16,w/22);ctx.font=`${size}px sans-serif`;ctx.fillStyle='#101820d9';ctx.fillRect(0,0,w,size*2.2);ctx.fillStyle='white';ctx.fillText(label,size*.5,size*1.5);
+  }
+  ctx.restore();
 }
-
+function render(data){
+  const compare=data.depth&&options.depthView==='compare';
+  canvas.width=capture.width*(compare?2:1);canvas.height=capture.height;
+  if(compare){
+    drawResult(data.baseline,null,'overlay',0,'仅分割');
+    drawResult(data,data.depth,'overlay',capture.width,'分割＋深度');
+  }else drawResult(data,data.depth,options.depthView);
+  canvas.style.display='block';video.style.visibility='hidden';$('empty').hidden=true;
+  const labels={LEFT:'偏左',RIGHT:'偏右',FORWARD:'向前',UNKNOWN:'暂无法判断'};
+  $('direction').textContent=compare?`${labels[data.baseline.direction]} → ${labels[data.direction]}`:labels[data.direction];
+}
 
 function openSettings(){
   $('input-source').value=options.source;$('backend').value=options.backend;$('profile').value=options.profile;
   $('threshold').value=options.threshold;$('threshold-value').textContent=options.threshold.toFixed(2);
+  $('depth-enabled').checked=options.depthEnabled;$('depth-view').value=options.depthView;$('depth-view-field').hidden=!options.depthEnabled;
   draftFile=options.file;$('file').value='';$('file-name').textContent=draftFile?.name||'未选择文件';
   $('file-field').hidden=options.source!=='file';$('camera-field').hidden=options.source!=='camera';
   cameraChoices(options.cameraId);$('settings-error').textContent='';dialog.showModal();void refreshCameras();
@@ -231,13 +265,14 @@ $('input-source').onchange=()=>{
   if($('input-source').value==='camera')void refreshCameras();
 };
 $('refresh-cameras').onclick=()=>{void refreshCameras();};
+$('depth-enabled').onchange=()=>{$('depth-view-field').hidden=!$('depth-enabled').checked;};
 $('file').onchange=e=>{draftFile=e.target.files[0]||draftFile;$('file-name').textContent=draftFile?.name||'未选择文件';};
 $('threshold').oninput=()=>{$('threshold-value').textContent=Number($('threshold').value).toFixed(2);};
 $('settings-form').onsubmit=async event=>{
   event.preventDefault();
-  const next={source:$('input-source').value,cameraId:$('camera-device').value,backend:$('backend').value,profile:$('profile').value,threshold:Number($('threshold').value),file:draftFile};
+  const next={source:$('input-source').value,cameraId:$('camera-device').value,backend:$('backend').value,profile:$('profile').value,threshold:Number($('threshold').value),file:draftFile,depthEnabled:$('depth-enabled').checked,depthView:$('depth-view').value};
   if(next.source==='file'&&!next.file){$('settings-error').textContent='请选择视频文件';return;}
-  const restart=next.source!==options.source||next.backend!==options.backend||next.profile!==options.profile||(next.source==='file'&&next.file!==options.file)||(next.source==='camera'&&next.cameraId!==options.cameraId);
+  const restart=next.depthEnabled!==options.depthEnabled||next.source!==options.source||next.backend!==options.backend||next.profile!==options.profile||(next.source==='file'&&next.file!==options.file)||(next.source==='camera'&&next.cameraId!==options.cameraId);
   const wasRunning=running;
   dialog.close();
   if(restart)stop('配置已更新');

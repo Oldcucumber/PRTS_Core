@@ -1,8 +1,10 @@
 import * as ort from './vendor/ort.webgpu.min.mjs';
 import { analyzeFloor } from './corridor.mjs';
 import { unpadPrediction } from './camera-geometry.mjs?v=full-frame-1';
+import { alignDepth, fuseDepth } from './depth-fusion.mjs?v=depth-1';
 
 let session, backend, modelBuffer, config;
+let depthSession=null,depthBackend=null,depthBuffer=null;
 ort.env.wasm.wasmPaths = new URL('./vendor/',import.meta.url).href;
 ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.max(1,Math.min(4,navigator.hardwareConcurrency||2)) : 1;
 ort.env.wasm.proxy = false;
@@ -11,7 +13,7 @@ async function create(backendName) {
   return ort.InferenceSession.create(modelBuffer, {executionProviders:[backendName], graphOptimizationLevel:'all'});
 }
 
-async function load({mode, profile}) {
+async function load({mode, profile, depthEnabled=false}) {
   config = profile==='quality' ? {height:512,width:288} : {height:320,width:192};
   postMessage({type:'status',message:'正在加载本地模型…'});
   const response=await fetch(new URL(`./models/floor-${profile}.onnx`,import.meta.url));
@@ -46,7 +48,28 @@ async function load({mode, profile}) {
     postMessage({type:'status',message:reason ? 'GPU 不可用，正在切换 WASM…' : '正在启动 WASM 推理…'});
     session=await create(backend);
   }
-  postMessage({type:'ready',backend,adapterInfo:backend==='webgpu'?adapterInfo:'CPU',reason,threads:ort.env.wasm.numThreads,...config});
+  if(depthEnabled){
+    postMessage({type:'status',message:'正在加载深度模型 Depth Anything V2 Small…'});
+    const response=await fetch(new URL('./models/depth-small.onnx',import.meta.url));
+    if(!response.ok)throw new Error(`深度模型加载失败（HTTP ${response.status}）`);
+    depthBuffer=new Uint8Array(await response.arrayBuffer());
+    try{await createDepth(backend);}
+    catch(error){
+      if(mode!=='auto'||backend!=='webgpu')throw new Error(`深度模型启动失败：${error.message}`);
+      await depthSession?.release().catch(()=>{});depthSession=null;
+      reason+=" 深度模型回退 WASM。";await createDepth('wasm');
+    }
+  }
+  postMessage({type:'ready',backend,depthBackend,depthSize:252,depthEnabled,adapterInfo:backend==='webgpu'?adapterInfo:'CPU',reason,threads:ort.env.wasm.numThreads,...config});
+}
+
+async function createDepth(provider){
+  depthBackend=provider;
+  depthSession=await ort.InferenceSession.create(depthBuffer,{executionProviders:[provider],graphOptimizationLevel:'all'});
+  const tensor=new ort.Tensor('float32',new Float32Array(3*252*252),[1,3,252,252]);
+  let outputs;
+  try{outputs=await depthSession.run({pixel_values:tensor});}
+  finally{tensor.dispose();if(outputs)Object.values(outputs).forEach(t=>t.dispose());}
 }
 
 async function infer(message) {
@@ -62,11 +85,34 @@ async function infer(message) {
       postMessage({type:'fallback',reason:String(e.message),backend,adapterInfo:'CPU'});
       outputs=await session.run({pixel_values:tensor});
     }
-    const inferenceMs=performance.now()-started;
+    const segmentationMs=performance.now()-started;
     const prob=outputs.floor_probability, classes=outputs.winning_class;
     const frame=unpadPrediction(prob.data,classes.data,prob.dims[2],prob.dims[1],message.contentRect);
-    const result=analyzeFloor(frame.probability,frame.classes,frame.width,frame.height,message.threshold);
-    postMessage({type:'result',id:message.id,inferenceMs,totalMs:performance.now()-started,backend,...result},[result.region.buffer]);
+    const baseline=analyzeFloor(frame.probability,frame.classes,frame.width,frame.height,message.threshold);
+    let result=baseline,depth=null,depthMs=0;
+    if(depthSession){
+      const t=performance.now();
+      const depthTensor=new ort.Tensor('float32',message.depthInput,[1,3,252,252]);
+      let output;
+      try{
+        try{output=await depthSession.run({pixel_values:depthTensor});}
+        catch(error){
+          if(depthBackend!=='webgpu'||message.mode!=='auto')throw error;
+          await depthSession.release().catch(()=>{});depthSession=null;await createDepth('wasm');
+          postMessage({type:'status',message:'深度 GPU 运行失败，深度已切换 WASM'});
+          output=await depthSession.run({pixel_values:depthTensor});
+        }
+        depthMs=performance.now()-t;
+        const prediction=output.relative_depth;
+        const aligned=alignDepth(prediction.data,prediction.dims[2],prediction.dims[1],message.depthContentRect,frame.width,frame.height);
+        const fused=fuseDepth(frame,baseline,aligned,message.threshold);
+        result=fused.result;
+        depth={heat:fused.heat,excluded:fused.excluded,removedFraction:fused.removedFraction,fit:fused.fit,backend:depthBackend};
+      }finally{depthTensor.dispose();if(output)Object.values(output).forEach(t=>t.dispose());}
+    }
+    const transfers=new Set([result.region.buffer]);
+    if(depth){transfers.add(baseline.region.buffer);transfers.add(depth.heat.buffer);transfers.add(depth.excluded.buffer);}
+    postMessage({type:'result',id:message.id,inferenceMs:segmentationMs+depthMs,segmentationMs,depthMs,totalMs:performance.now()-started,backend,...result,baseline:depth?baseline:null,depth},[...transfers]);
   } finally { tensor.dispose(); if(outputs) Object.values(outputs).forEach(t=>t.dispose()); }
 }
 

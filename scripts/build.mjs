@@ -7,8 +7,9 @@ import {createHash} from 'node:crypto';
 const root=await realpath(fileURLToPath(new URL('..',import.meta.url)));
 const output=resolve(root,'dist');
 const entries=[
-  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs'].map(name=>[`web/${name}`,name]),
+  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs','depth-fusion.mjs'].map(name=>[`web/${name}`,name]),
   ...['fast','quality'].map(name=>[`web/models/floor-${name}.onnx`,`models/floor-${name}.onnx`]),
+  ['web/models/depth-small.onnx','models/depth-small.onnx'],
   // Non-isolated hosts select Asyncify; isolated development uses JSEP.
   ...['ort.webgpu.min.mjs','ort-wasm-simd-threaded.jsep.mjs','ort-wasm-simd-threaded.jsep.wasm','ort-wasm-simd-threaded.asyncify.mjs','ort-wasm-simd-threaded.asyncify.wasm'].map(name=>[`node_modules/onnxruntime-web/dist/${name}`,`vendor/${name}`]),
   ['VID20260919182406.mp4','test-video.mp4'],
@@ -16,11 +17,13 @@ const entries=[
   ['licenses/onnxruntime-MIT.txt','licenses/onnxruntime-MIT.txt'],
   ['licenses/segformer-NVIDIA.txt','licenses/segformer-NVIDIA.txt'],
   ['licenses/segformer-model-card.md','licenses/segformer-model-card.md'],
+  ['licenses/depth-anything-v2-Apache-2.0.txt','licenses/depth-anything-v2-Apache-2.0.txt'],
+  ['licenses/depth-anything-v2-model-card.md','licenses/depth-anything-v2-model-card.md'],
 ];
 // Validate prerequisites before replacing any previous successful build.
 for(const [source] of entries){
   try{await stat(join(root,source));}
-  catch{throw new Error(`Missing ${source}. Run npm ci; export missing models with python export_web.py.`);}
+  catch{throw new Error(`Missing ${source}. Run npm ci; export missing models with python export_web.py / python export_depth.py.`);}
 }
 // Never follow an output-directory symlink or delete outside this project.
 if(output!==join(root,'dist')||!output.startsWith(root+sep))throw new Error('Invalid build directory');

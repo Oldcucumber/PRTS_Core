@@ -2,11 +2,11 @@
 
 在线测试：[GitHub Pages](https://oldcucumber.github.io/PRTS_Core/)。
 
-另有浏览器测试网页：运行 `npm install`、`npm start` 后访问 http://localhost:8080。支持 WebGPU、WASM、测试视频与摄像头，详见 [WEB_README.md](WEB_README.md)。
+另有浏览器测试网页：运行 `npm install`、`npm start` 后访问 http://localhost:8080。支持 WebGPU、WASM、测试视频与摄像头；设置中可开启 Depth Anything V2 Small 深度辅助，左右对比同一帧的“仅分割 / 分割＋深度”，默认关闭。深度输出是相对值，不是米制距离。用法和实测结果详见 [WEB_README.md](WEB_README.md)。
 
 GitHub Pages：`npm ci && npm run build` 生成包含全部运行资源的 `dist/`，仓库内已提供 Pages 自动部署工作流。使用 `npm run test:static` 验证纯静态环境。
 
-仅实现测试视频的地面分割和图像空间前进方向估计。
+以下说明对应 Python 原型，仅实现测试视频的地面分割和图像空间前进方向估计；可选深度辅助在浏览器版本中实现。
 
 ## 运行
 
