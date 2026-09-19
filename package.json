@@ -1,0 +1,15 @@
+{
+  "name": "floor-direction-lab",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node scripts/build.mjs",
+    "preview": "node scripts/preview.mjs",
+    "test": "node --test tests/corridor.test.mjs",
+    "test:browser": "node tests/browser.mjs",
+    "test:static": "npm run build && node tests/static.mjs"
+  },
+  "dependencies": { "onnxruntime-web": "1.30.0" },
+  "devDependencies": { "playwright": "1.58.2" }
+}

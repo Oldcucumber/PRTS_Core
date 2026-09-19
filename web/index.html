@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080b0e">
+  <title>摄像头 · SegFormer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b1118'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%239fd0ff' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <main class="camera-view" aria-label="摄像头主界面">
+    <video id="source" muted playsinline preload="auto" aria-label="输入预览"></video>
+    <canvas id="result" aria-label="分割结果与候选方向"></canvas>
+    <div id="empty" class="empty">
+      <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><path d="M4 6h4l2-2h4l2 2h4v14H4z"/><circle cx="12" cy="12" r="4"/></svg>
+      <span id="preview-state">正在连接摄像头</span>
+    </div>
+    <section class="hud" aria-label="性能指标与当前配置">
+      <div class="hud-heading"><span class="state"><i id="status-dot"></i><span id="run-state">待机</span></span><span id="backend-badge">AUTO</span></div>
+      <div class="metrics">
+        <div><span>FPS</span><strong id="fps">—</strong></div>
+        <div><span>推理 <small>ms</small></span><strong id="latency">—</strong></div>
+        <div><span>总耗时 <small>ms</small></span><strong id="total">—</strong></div>
+        <div><span>帧数</span><strong id="frames">0</strong></div>
+      </div>
+      <div class="configuration"><span id="source-label">后置摄像头</span><span id="config-summary">192 × 320 · 阈值 0.55</span></div>
+      <div class="configuration secondary"><span id="device">SegFormer-B0 · AUTO</span><span>方向 <b id="direction">—</b></span></div>
+      <p id="status" role="status" aria-live="polite">摄像头初始化</p>
+    </section>
+    <nav class="toolbar" aria-label="运行控制">
+      <button id="start" class="start"><svg id="start-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5 3.5v13L16 10z"/></svg><span id="start-label">开始</span></button>
+      <button id="settings" class="settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M4 17h16"/><rect x="7" y="4" width="4" height="6" rx="1" fill="currentColor"/><rect x="14" y="14" width="4" height="6" rx="1" fill="currentColor"/></svg><span>设置</span></button>
+    </nav>
+  </main>
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
+    <form id="settings-form">
+      <div class="dialog-heading"><h1 id="settings-title">设置</h1><button type="button" id="close-settings" class="icon-button" aria-label="关闭设置">×</button></div>
+      <div class="settings-content">
+        <div class="field"><label for="input-source">输入源</label><select id="input-source"><option value="camera">后置摄像头</option><option value="sample">内置测试视频</option><option value="file">本地视频文件</option></select></div>
+        <div id="file-field" class="field" hidden><label for="file">视频文件</label><input id="file" type="file" accept="video/*"><span id="file-name" class="help">未选择文件</span></div>
+        <div class="field"><label for="backend">推理后端</label><select id="backend"><option value="auto">AUTO · WebGPU 优先</option><option value="webgpu">WebGPU · GPU</option><option value="wasm">WASM · CPU</option></select></div>
+        <div class="field"><label for="profile">输入分辨率</label><select id="profile"><option value="fast">192 × 320</option><option value="quality">288 × 512</option></select></div>
+        <div class="field"><div class="range-label"><label for="threshold">地面概率阈值</label><output id="threshold-value">0.55</output></div><input id="threshold" type="range" min="0.30" max="0.90" value="0.55" step="0.05"></div>
+        <dl class="model-info"><div><dt>模型</dt><dd>SegFormer-B0 / ADE20K</dd></div><div><dt>执行环境</dt><dd>ONNX Runtime Web / Worker</dd></div></dl>
+        <p id="compatibility" class="help"></p>
+        <p class="help">绿色：地面预测。黄色：中心线。蓝色：候选方向。未估计实际距离与通行净空。</p>
+        <p id="settings-error" role="alert"></p>
+      </div>
+      <div class="dialog-actions"><button type="button" id="cancel-settings">取消</button><button type="submit" class="apply">应用</button></div>
+    </form>
+  </dialog>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

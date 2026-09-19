@@ -1,0 +1,16 @@
+{
+  "fast": {
+    "height": 320,
+    "width": 192,
+    "bytes": 15173445,
+    "max_probability_error": 1.7881393432617188e-06,
+    "class_agreement": 1.0
+  },
+  "quality": {
+    "height": 512,
+    "width": 288,
+    "bytes": 15173447,
+    "max_probability_error": 4.649162292480469e-06,
+    "class_agreement": 1.0
+  }
+}
