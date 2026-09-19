@@ -7,7 +7,7 @@ import {createHash} from 'node:crypto';
 const root=await realpath(fileURLToPath(new URL('..',import.meta.url)));
 const output=resolve(root,'dist');
 const entries=[
-  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs'].map(name=>[`web/${name}`,name]),
+  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs'].map(name=>[`web/${name}`,name]),
   ...['fast','quality'].map(name=>[`web/models/floor-${name}.onnx`,`models/floor-${name}.onnx`]),
   // Non-isolated hosts select Asyncify; isolated development uses JSEP.
   ...['ort.webgpu.min.mjs','ort-wasm-simd-threaded.jsep.mjs','ort-wasm-simd-threaded.jsep.wasm','ort-wasm-simd-threaded.asyncify.mjs','ort-wasm-simd-threaded.asyncify.wasm'].map(name=>[`node_modules/onnxruntime-web/dist/${name}`,`vendor/${name}`]),

@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#080b0e">
   <title>摄像头 · SegFormer</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b1118'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%239fd0ff' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./style.css?v=portrait-1">
 </head>
 <body>
-  <main class="camera-view" aria-label="摄像头主界面">
+  <main class="camera-view camera-input" aria-label="摄像头主界面">
     <video id="source" muted playsinline preload="auto" aria-label="输入预览"></video>
     <canvas id="result" aria-label="分割结果与候选方向"></canvas>
     <div id="empty" class="empty">
@@ -50,6 +50,6 @@
       <div class="dialog-actions"><button type="button" id="cancel-settings">取消</button><button type="submit" class="apply">应用</button></div>
     </form>
   </dialog>
-  <script type="module" src="./app.mjs"></script>
+  <script type="module" src="./app.mjs?v=portrait-1"></script>
 </body>
 </html>

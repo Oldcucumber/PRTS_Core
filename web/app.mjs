@@ -1,4 +1,7 @@
+import {coverCrop,cameraConstraints} from './camera-geometry.mjs';
+
 const $=id=>document.getElementById(id);
+const view=document.querySelector('.camera-view');
 const video=$('source'), canvas=$('result'), ctx=canvas.getContext('2d');
 const capture=document.createElement('canvas'), captureCtx=capture.getContext('2d');
 const resize=document.createElement('canvas'), resizeCtx=resize.getContext('2d',{willReadFrequently:true});
@@ -9,11 +12,13 @@ let draftFile=null;
 let worker=null,stream=null,objectURL=null,generation=0,frameId=0,running=false,busy=false;
 let config=null,capturedAt=0,lastFrameTime=-1,timer=null,lastResultAt=0,fps=0;
 let inputPromise=null,inputReady=false;
+let viewRevision=0,capturedViewRevision=0;
 const stats={frames:0,backend:null,direction:'UNKNOWN',inferenceMs:0,totalMs:0,fps:0,errors:[],ready:false,samples:[]};
 window.floorLabStats=stats;
 
 function status(message){$('status').textContent=message;}
 function updateConfig(){
+  view.classList.toggle('camera-input',options.source==='camera');
   $('source-label').textContent=options.source==='camera'?'后置摄像头':options.source==='sample'?'内置测试视频':options.file?.name||'本地视频';
   $('config-summary').textContent=`${options.profile==='fast'?'192 × 320':'288 × 512'} · 阈值 ${options.threshold.toFixed(2)}`;
   if(!stats.ready){
@@ -63,7 +68,7 @@ function ensureInput(){
     try{
       if(options.source==='camera'){
         if(!isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new Error('摄像头需要 HTTPS 或本机 localhost。');
-        const newStream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{ideal:'environment'},width:{ideal:720},height:{ideal:1280}}});
+        const newStream=await navigator.mediaDevices.getUserMedia({audio:false,video:cameraConstraints(view.clientWidth,view.clientHeight)});
         if(token!==generation){newStream.getTracks().forEach(t=>t.stop());return false;}
         stream=newStream;video.srcObject=stream;
         stream.getVideoTracks()[0].addEventListener('ended',()=>{if(token===generation)fail('摄像头已断开');});
@@ -110,6 +115,8 @@ async function start(){
       if(data.type==='error')fail(data.message);
       if(data.type==='result'){
         busy=false;if(data.id!==frameId){schedule();return;}
+        // Rotation / viewport resize invalidates the crop of an in-flight frame.
+        if(capturedViewRevision!==viewRevision){schedule();return;}
         render(data);
         const now=performance.now();
         if(lastResultAt){const value=1000/(now-lastResultAt);fps=fps?fps*.75+value*.25:value;}
@@ -129,9 +136,16 @@ function tick(){
   if(!running||busy||!config)return;
   if(video.readyState<2||video.paused||video.currentTime===lastFrameTime){timer=setTimeout(tick,20);return;}
   lastFrameTime=video.currentTime;capturedAt=performance.now();
-  const h=Math.min(960,video.videoHeight),w=Math.round(h*video.videoWidth/video.videoHeight);
+  const crop=options.source==='camera'
+    ?coverCrop(video.videoWidth,video.videoHeight,view.clientWidth,view.clientHeight)
+    :{x:0,y:0,width:video.videoWidth,height:video.videoHeight};
+  if(!crop){timer=setTimeout(tick,20);return;}
+  const scale=Math.min(1,960/Math.max(crop.width,crop.height));
+  const h=Math.round(crop.height*scale),w=Math.round(crop.width*scale);
   if(!w||!h){timer=setTimeout(tick,20);return;}
-  capture.width=w;capture.height=h;captureCtx.drawImage(video,0,0,w,h);
+  capturedViewRevision=viewRevision;
+  capture.width=w;capture.height=h;
+  captureCtx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,w,h);
   resize.width=config.width;resize.height=config.height;resizeCtx.drawImage(capture,0,0,resize.width,resize.height);
   const pixels=resizeCtx.getImageData(0,0,resize.width,resize.height).data;
   const n=resize.width*resize.height,input=new Float32Array(n*3),mean=[.485,.456,.406],std=[.229,.224,.225];
@@ -184,6 +198,15 @@ $('settings-form').onsubmit=async event=>{
   if(restart){if(wasRunning)await start();else await ensureInput();}
 };
 video.addEventListener('error',()=>{if(running||inputPromise||inputReady)fail('视频解码失败，请选择浏览器支持的 MP4 / WebM 文件。');});
+function invalidateView(){
+  viewRevision++;
+  if(inputReady){
+    canvas.style.display='none';video.style.visibility='visible';
+    $('direction').textContent='—';stats.direction='UNKNOWN';lastFrameTime=-1;
+  }
+}
+new ResizeObserver(invalidateView).observe(view);
+video.addEventListener('resize',invalidateView);
 // Preview also owns camera resources. Release both preview and inference in background.
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(running||inputPromise||inputReady))stop('页面已进入后台，摄像头与推理已停止');});
 window.addEventListener('pagehide',()=>stop());
