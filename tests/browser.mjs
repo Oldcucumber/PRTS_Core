@@ -62,7 +62,7 @@ try{
   await page.click('#start');results.camera=await waitFrames(3);
   await page.evaluate(()=>{window.testTrack=document.querySelector('video').srcObject.getVideoTracks()[0];});
   await stop();assert.equal(await page.evaluate(()=>window.testTrack.readyState),'ended');
-  await page.route('**/inference.worker.mjs',async route=>{
+  await page.route('**/inference.worker.mjs*',async route=>{
     const response=await route.fetch();
     await route.fulfill({response,body:`Object.defineProperty(navigator,'gpu',{value:undefined});\n${await response.text()}`});
   });
@@ -72,7 +72,7 @@ try{
   await page.waitForFunction(()=>window.floorLabStats.errors.length>0,null,{timeout:30000});
   assert.match(await page.locator('#status').textContent(),/WebGPU 启动失败/);
   assert.equal(await page.locator('#start-label').textContent(),'开始');
-  await page.unroute('**/inference.worker.mjs');
+  await page.unroute('**/inference.worker.mjs*');
   await page.setViewportSize({width:390,height:844});
   await configure({backend:'auto'});await page.click('#start');results.mobile=await waitFrames(6);
   await page.screenshot({path:'outputs/web/mobile.png'});

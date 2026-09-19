@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#080b0e">
   <title>摄像头 · SegFormer</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b1118'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%239fd0ff' stroke-width='3'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./style.css?v=cameras-1">
+  <link rel="stylesheet" href="./style.css?v=full-frame-1">
 </head>
 <body>
-  <main class="camera-view camera-input" aria-label="摄像头主界面">
+  <main class="camera-view" aria-label="摄像头主界面">
     <video id="source" muted playsinline preload="auto" aria-label="输入预览"></video>
     <canvas id="result" aria-label="分割结果与候选方向"></canvas>
     <div id="empty" class="empty">
@@ -48,6 +48,7 @@
         <div class="field"><label for="profile">输入分辨率</label><select id="profile"><option value="fast">192 × 320</option><option value="quality">288 × 512</option></select></div>
         <div class="field"><div class="range-label"><label for="threshold">地面概率阈值</label><output id="threshold-value">0.55</output></div><input id="threshold" type="range" min="0.30" max="0.90" value="0.55" step="0.05"></div>
         <dl class="model-info"><div><dt>模型</dt><dd>SegFormer-B0 / ADE20K</dd></div><div><dt>执行环境</dt><dd>ONNX Runtime Web / Worker</dd></div></dl>
+        <p class="help">画面处理：完整视野，等比缩放，不裁切。比例不一致时留边。</p>
         <p id="compatibility" class="help"></p>
         <p class="help">绿色：地面预测。黄色：中心线。蓝色：候选方向。未估计实际距离与通行净空。</p>
         <p id="settings-error" role="alert"></p>
@@ -55,6 +56,6 @@
       <div class="dialog-actions"><button type="button" id="cancel-settings">取消</button><button type="submit" class="apply">应用</button></div>
     </form>
   </dialog>
-  <script type="module" src="./app.mjs?v=cameras-1"></script>
+  <script type="module" src="./app.mjs?v=full-frame-1"></script>
 </body>
 </html>

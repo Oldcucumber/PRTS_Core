@@ -1,4 +1,4 @@
-import {coverCrop,cameraConstraints} from './camera-geometry.mjs?v=cameras-1';
+import {containRect,cameraConstraints} from './camera-geometry.mjs?v=full-frame-1';
 
 const $=id=>document.getElementById(id);
 const view=document.querySelector('.camera-view');
@@ -53,7 +53,6 @@ async function refreshCameras(){
   finally{if(request===cameraRefresh)$('refresh-cameras').disabled=false;}
 }
 function updateConfig(){
-  view.classList.toggle('camera-input',options.source==='camera');
   $('source-label').textContent=options.source==='camera'?cameraName():options.source==='sample'?'内置测试视频':options.file?.name||'本地视频';
   $('source-label').title=$('source-label').textContent;
   $('config-summary').textContent=`${options.profile==='fast'?'192 × 320':'288 × 512'} · 阈值 ${options.threshold.toFixed(2)}`;
@@ -106,7 +105,7 @@ function ensureInput(){
     try{
       if(options.source==='camera'){
         if(!isSecureContext||!navigator.mediaDevices?.getUserMedia)throw new Error('摄像头需要 HTTPS 或本机 localhost。');
-        const newStream=await navigator.mediaDevices.getUserMedia({audio:false,video:cameraConstraints(view.clientWidth,view.clientHeight,options.cameraId)});
+        const newStream=await navigator.mediaDevices.getUserMedia({audio:false,video:cameraConstraints(options.cameraId)});
         if(token!==generation){newStream.getTracks().forEach(t=>t.stop());return false;}
         stream=newStream;video.srcObject=stream;
         const track=stream.getVideoTracks()[0];
@@ -137,7 +136,7 @@ async function start(){
   const mode=options.backend,profile=options.profile;
   $('run-state').textContent='加载中';$('backend-badge').textContent='加载模型';
   try{
-    worker=new Worker(new URL('./inference.worker.mjs',import.meta.url),{type:'module'});
+    worker=new Worker(new URL('./inference.worker.mjs?v=full-frame-1',import.meta.url),{type:'module'});
     worker.onerror=e=>{if(token===generation)fail(`推理模块加载失败：${e.message}`);};
     worker.onmessage=({data})=>{
       if(token!==generation)return;
@@ -156,7 +155,7 @@ async function start(){
       if(data.type==='error')fail(data.message);
       if(data.type==='result'){
         busy=false;if(data.id!==frameId){schedule();return;}
-        // Rotation / viewport resize invalidates the crop of an in-flight frame.
+        // Discard results captured before a source / viewport geometry change.
         if(capturedViewRevision!==viewRevision){schedule();return;}
         render(data);
         const now=performance.now();
@@ -177,22 +176,24 @@ function tick(){
   if(!running||busy||!config)return;
   if(video.readyState<2||video.paused||video.currentTime===lastFrameTime){timer=setTimeout(tick,20);return;}
   lastFrameTime=video.currentTime;capturedAt=performance.now();
-  const crop=options.source==='camera'
-    ?coverCrop(video.videoWidth,video.videoHeight,view.clientWidth,view.clientHeight)
-    :{x:0,y:0,width:video.videoWidth,height:video.videoHeight};
-  if(!crop){timer=setTimeout(tick,20);return;}
-  const scale=Math.min(1,960/Math.max(crop.width,crop.height));
-  const h=Math.round(crop.height*scale),w=Math.round(crop.width*scale);
+  const sourceWidth=video.videoWidth,sourceHeight=video.videoHeight;
+  const scale=Math.min(1,960/Math.max(sourceWidth,sourceHeight));
+  const h=Math.round(sourceHeight*scale),w=Math.round(sourceWidth*scale);
   if(!w||!h){timer=setTimeout(tick,20);return;}
   capturedViewRevision=viewRevision;
   capture.width=w;capture.height=h;
-  captureCtx.drawImage(video,crop.x,crop.y,crop.width,crop.height,0,0,w,h);
-  resize.width=config.width;resize.height=config.height;resizeCtx.drawImage(capture,0,0,resize.width,resize.height);
+  captureCtx.drawImage(video,0,0,w,h);
+  resize.width=config.width;resize.height=config.height;
+  const fit=containRect(w,h,resize.width,resize.height);
+  // Neutral padding instead of stretching or cropping to the model's aspect ratio.
+  resizeCtx.fillStyle='rgb(124,116,104)';resizeCtx.fillRect(0,0,resize.width,resize.height);
+  resizeCtx.drawImage(capture,fit.x,fit.y,fit.width,fit.height);
+  const contentRect={x:fit.x/resize.width,y:fit.y/resize.height,width:fit.width/resize.width,height:fit.height/resize.height};
   const pixels=resizeCtx.getImageData(0,0,resize.width,resize.height).data;
   const n=resize.width*resize.height,input=new Float32Array(n*3),mean=[.485,.456,.406],std=[.229,.224,.225];
   for(let i=0;i<n;i++)for(let c=0;c<3;c++)input[c*n+i]=(pixels[i*4+c]/255-mean[c])/std[c];
   busy=true;frameId++;
-  worker.postMessage({type:'infer',id:frameId,input,threshold:options.threshold,mode:options.backend},[input.buffer]);
+  worker.postMessage({type:'infer',id:frameId,input,contentRect,threshold:options.threshold,mode:options.backend},[input.buffer]);
 }
 function render(data){
   canvas.width=capture.width; canvas.height=capture.height;

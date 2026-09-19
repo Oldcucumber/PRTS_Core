@@ -58,12 +58,12 @@ try{
   assert.match(results.cases.wasmSingleThread.device,/1 线程/);
   await configure('webgpu');await run('webgpuFast','webgpu');
   await configure('webgpu','quality');await run('webgpuQuality','webgpu');
-  await page.route('**/inference.worker.mjs',async route=>{
+  await page.route('**/inference.worker.mjs*',async route=>{
     const response=await route.fetch();
     await route.fulfill({response,body:`Object.defineProperty(navigator,'gpu',{value:undefined});\n${await response.text()}`});
   });
   await configure('auto');await run('autoFallback','wasm');
-  await page.unroute('**/inference.worker.mjs');
+  await page.unroute('**/inference.worker.mjs*');
   await configure('auto','fast','camera');
   await page.waitForFunction(()=>document.querySelector('video').srcObject?.active);
   await page.evaluate(()=>{window.trackForTest=document.querySelector('video').srcObject.getVideoTracks()[0];});

@@ -1,5 +1,6 @@
 import * as ort from './vendor/ort.webgpu.min.mjs';
 import { analyzeFloor } from './corridor.mjs';
+import { unpadPrediction } from './camera-geometry.mjs?v=full-frame-1';
 
 let session, backend, modelBuffer, config;
 ort.env.wasm.wasmPaths = new URL('./vendor/',import.meta.url).href;
@@ -63,7 +64,8 @@ async function infer(message) {
     }
     const inferenceMs=performance.now()-started;
     const prob=outputs.floor_probability, classes=outputs.winning_class;
-    const result=analyzeFloor(prob.data,classes.data,prob.dims[2],prob.dims[1],message.threshold);
+    const frame=unpadPrediction(prob.data,classes.data,prob.dims[2],prob.dims[1],message.contentRect);
+    const result=analyzeFloor(frame.probability,frame.classes,frame.width,frame.height,message.threshold);
     postMessage({type:'result',id:message.id,inferenceMs,totalMs:performance.now()-started,backend,...result},[result.region.buffer]);
   } finally { tensor.dispose(); if(outputs) Object.values(outputs).forEach(t=>t.dispose()); }
 }
