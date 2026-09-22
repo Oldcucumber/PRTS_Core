@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "purpose": "Route identifiers and vehicle appearance must generalize beyond the private 912 demonstration.",
+  "frozen_before_first_inference": true,
+  "development": ["private-912", "commons-citybus-20"],
+  "holdout": ["commons-arriva-466", "commons-utrecht-8"],
+  "cases": [
+    {"id": "commons-citybus-20", "file": "Citybus Kai Tak 20 (1).webm", "expected_route": "20", "negative_targets": ["912", "120", "20A"], "focus": "Changing electronic destination display; do not require the destination wording to stay fixed."},
+    {"id": "commons-arriva-466", "file": "Arriva London LJ08CXR in Addiscombe Road, Croydon (February 2016).webm", "expected_route": "466", "negative_targets": ["912", "46", "468"], "focus": "Unseen vehicle, route and country; moving bus."},
+    {"id": "commons-utrecht-8", "file": "Heuliez GX 437 U-OV 4833.webm", "expected_route": "8", "negative_targets": ["912", "18", "4833"], "focus": "Unseen articulated bus; fleet identifier must not be treated as route."}
+  ],
+  "acceptance": {
+    "positive": "One target_observed event while independently annotated route is legible; report failure if missed.",
+    "negative": "Zero target_observed events for every negative target over the whole clip.",
+    "association": "Route and direction evidence must belong to the same detected vehicle.",
+    "direction": "When a direction is requested but unreadable, emit candidate information without confirming the requested service.",
+    "split": "Freeze labels and targets before inference; tuning on a holdout result invalidates its holdout status. Preserve first-pass results.",
+    "limits": "Three public clips are a small exploratory check, not a deployment accuracy estimate. Synthetic text fixtures test logic only."
+  }
+}

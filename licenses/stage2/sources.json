@@ -1,0 +1,75 @@
+{
+  "retrieved_at": "2026-09-21T22:32:36.543947+00:00",
+  "files": [
+    {
+      "file": "Mask2Former-code-MIT.txt",
+      "source": "https://raw.githubusercontent.com/facebookresearch/Mask2Former/main/LICENSE",
+      "sha256": "99566a874d9decd98dc3cea026c314ad255d8798d7d51e121fe1413f4d2750bb"
+    },
+    {
+      "file": "Mask2Former-weights-MODEL_ZOO.md",
+      "source": "https://raw.githubusercontent.com/facebookresearch/Mask2Former/main/MODEL_ZOO.md",
+      "sha256": "6af2cff5f006cdb9bf2949146fd76336feca252f9c39ac0065ba974cca3723f8"
+    },
+    {
+      "file": "CC-BY-NC-4.0.txt",
+      "source": "https://creativecommons.org/licenses/by-nc/4.0/legalcode.txt",
+      "sha256": "41003d4a74749c0220e33dd415042164b5a1093ed401f36277234f772d22d3d0"
+    },
+    {
+      "file": "CC-BY-4.0.txt",
+      "source": "https://creativecommons.org/licenses/by/4.0/legalcode.txt",
+      "sha256": "9ba9550ad48438d0836ddab3da480b3b69ffa0aac7b7878b5a0039e7ab429411"
+    },
+    {
+      "file": "CC-BY-SA-4.0.txt",
+      "source": "https://creativecommons.org/licenses/by-sa/4.0/legalcode.txt",
+      "sha256": "28a9529c7d0bb4dc51f4bf5c116a3d16ef247a052f7591466768ddf563fd1cf5"
+    },
+    {
+      "file": "Ultralytics-AGPL-3.0.txt",
+      "source": "https://raw.githubusercontent.com/ultralytics/ultralytics/main/LICENSE",
+      "sha256": "0d96a4ff68ad6d4b6f1f30f713b18d5184912ba8dd389f86aa7710db079abcb0"
+    },
+    {
+      "file": "MiniCPM-V-LICENSE.txt",
+      "source": "https://raw.githubusercontent.com/OpenBMB/MiniCPM-V/main/LICENSE",
+      "sha256": "186c8635e1f88660ec113f4935867a612e35b3124aca5c712d97e2e33d7eb677"
+    },
+    {
+      "file": "MiniCPM-V-4.6-model-card.md",
+      "source": "https://huggingface.co/openbmb/MiniCPM-V-4.6-gguf/raw/afe9accb78d2995d214cd912920c9c92f4015faa/README.md",
+      "sha256": "feb740164c15f45c5ddda2a8109b4d46a3a7fa7aa10d544f77c99eb78283691d"
+    },
+    {
+      "file": "RapidOCR-Apache-2.0.txt",
+      "source": "https://raw.githubusercontent.com/RapidAI/RapidOCR/main/LICENSE",
+      "sha256": "3e0af25fdd06aa9586ae97adb00ea927ebe5a3805ac77d2d3a81ce5f55693333"
+    },
+    {
+      "file": "PaddleOCR-Apache-2.0.txt",
+      "source": "https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/main/LICENSE",
+      "sha256": "3840c5c0c61c294264d2dd77b8777be6ddd90121ef4e0e64abcd22edea581d6e"
+    },
+    {
+      "file": "llama.cpp-MIT.txt",
+      "source": "outputs/vendor/MiniCPM-V-Apps/llama.cpp-omni/LICENSE",
+      "sha256": "bcd8ec749126d45cb06737d0690295d73df4b6e7e194205bcf91190368f27285"
+    },
+    {
+      "file": "sherpa-onnx-Apache-2.0.txt",
+      "source": "outputs/vendor/apple-reference/sherpa-license.txt",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "file": "SenseVoice-FunASR-Model-License.txt",
+      "source": "outputs/vendor/apple-reference/sensevoice-model-license.txt",
+      "sha256": "7dba975a2069691db4992b0592d70828b330d2f8a30a71450f4e152a554e84f8"
+    },
+    {
+      "file": "onnxruntime-MIT.txt",
+      "source": "native/third_party/onnxruntime/LICENSE",
+      "sha256": "2f07c72751aed99790b8a4869cf2311df85a860b22ded05fa22803587a48922c"
+    }
+  ]
+}

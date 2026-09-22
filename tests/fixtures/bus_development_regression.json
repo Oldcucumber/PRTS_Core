@@ -1,0 +1,109 @@
+{
+  "version": 4,
+  "split": "development regression; these sources already informed model selection",
+  "frozen_before_candidate_inference": true,
+  "baseline_results_sha256": "00c7c8ff67233912ae9fc86f55823ea240337a8031565134931250947304bb4f",
+  "cases": [
+    {
+      "id": "commons-citybus-20",
+      "file": "Citybus Kai Tak 20 (1).webm",
+      "expected_route": "20",
+      "negative_targets": [
+        "912",
+        "120",
+        "20A"
+      ],
+      "focus": "Changing electronic destination display; do not require the destination wording to stay fixed."
+    },
+    {
+      "id": "commons-arriva-466",
+      "file": "Arriva London LJ08CXR in Addiscombe Road, Croydon (February 2016).webm",
+      "expected_route": "466",
+      "negative_targets": [
+        "912",
+        "46",
+        "468"
+      ],
+      "focus": "Unseen vehicle, route and country; moving bus."
+    },
+    {
+      "id": "commons-utrecht-8",
+      "file": "Heuliez GX 437 U-OV 4833.webm",
+      "expected_route": "8",
+      "negative_targets": [
+        "912",
+        "18",
+        "4833"
+      ],
+      "focus": "Unseen articulated bus; fleet identifier must not be treated as route."
+    },
+    {
+      "id": "commons-citybus-20a",
+      "file": "6427 CTB 20A 16-08-2022.jpg",
+      "media_type": "image",
+      "expected_route": "20A",
+      "negative_targets": [
+        "20",
+        "912",
+        "6427"
+      ]
+    },
+    {
+      "id": "commons-mbta-sl3",
+      "file": "MBTA route SL3 bus at Bellingham Square station, July 2021.jpg",
+      "media_type": "image",
+      "expected_route": "SL3",
+      "negative_targets": [
+        "L3",
+        "3",
+        "912"
+      ]
+    },
+    {
+      "id": "commons-mbta-73",
+      "file": "MBTA route 73 trolleybus at Waverley Square, November 2018.webm",
+      "media_type": "video",
+      "expected_route": "73",
+      "negative_targets": [
+        "7",
+        "173",
+        "912"
+      ]
+    },
+    {
+      "id": "private-printed-led",
+      "expected_route": "912",
+      "negative_targets": [
+        "12",
+        "80",
+        "216",
+        "912A",
+        "1912"
+      ],
+      "private": true,
+      "source": "C:/Users/JIONG/Documents/OPPO 互联/VID_20260422_132609 (1).mp4",
+      "start": 3.0,
+      "end": 33.5,
+      "roi": [
+        0,
+        0.065,
+        1,
+        0.87
+      ],
+      "ignore_regions": [
+        [
+          0.73,
+          0,
+          1,
+          0.105
+        ],
+        [
+          0.2,
+          0.95,
+          0.8,
+          1
+        ]
+      ]
+    }
+  ]
+}

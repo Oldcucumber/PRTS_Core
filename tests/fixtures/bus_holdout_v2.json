@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "frozen_before_inference": true,
+  "rationale": "Initial Citybus 20 and Utrecht 8 clips have informed fixes and are now development data. This new group checks unseen identifiers and displays after those fixes.",
+  "cases": [
+    {"id": "commons-citybus-20a", "file": "6427 CTB 20A 16-08-2022.jpg", "media_type": "image", "expected_route": "20A", "negative_targets": ["20", "912", "6427"]},
+    {"id": "commons-mbta-sl3", "file": "MBTA route SL3 bus at Bellingham Square station, July 2021.jpg", "media_type": "image", "expected_route": "SL3", "negative_targets": ["L3", "3", "912"]},
+    {"id": "commons-mbta-73", "file": "MBTA route 73 trolleybus at Waverley Square, November 2018.webm", "media_type": "video", "expected_route": "73", "negative_targets": ["7", "173", "912"]}
+  ],
+  "labels": "File metadata supplies a candidate route only; manually inspect legibility and vehicle identity before interpreting predictions. Static photographs are not arrival, tracking, or latency evidence."
+}

@@ -1,0 +1,149 @@
+{
+  "provenance": "为独立验收编写的合成中文意图样例；不是实际录音，不用于宣称真实ASR准确率。",
+  "cases": [
+    {
+      "text": "开始给我指路，沿人行道往前走。",
+      "expected": {
+        "action": "navigate",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "继续帮我看路，我准备往前走了。",
+      "expected": {
+        "action": "navigate",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "先停止导航。",
+      "expected": {
+        "action": "stop",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "别再给我方向提示了。",
+      "expected": {
+        "action": "stop",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "前面有什么东西？",
+      "expected": {
+        "action": "ask",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "请读一下墙上的公告。",
+      "expected": {
+        "action": "ask",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "右边那个路牌写着什么？",
+      "expected": {
+        "action": "ask",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "我面前有没有台阶？",
+      "expected": {
+        "action": "ask",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "请帮我等912路公交，来了提醒我。",
+      "expected": {
+        "action": "wait",
+        "kind": "bus",
+        "target": "912"
+      }
+    },
+    {
+      "text": "908路车出现的时候告诉我。",
+      "expected": {
+        "action": "wait",
+        "kind": "bus",
+        "target": "908"
+      }
+    },
+    {
+      "text": "帮我留意二号线地铁进站，到了提醒我。",
+      "expected": {
+        "action": "wait",
+        "kind": "train",
+        "target": "2"
+      }
+    },
+    {
+      "text": "请等A108号，广播叫到我的号码就提醒我。",
+      "expected": {
+        "action": "wait",
+        "kind": "number",
+        "target": "A108"
+      }
+    },
+    {
+      "text": "我的号是B206，轮到我时告诉我。",
+      "expected": {
+        "action": "wait",
+        "kind": "number",
+        "target": "B206"
+      }
+    },
+    {
+      "text": "帮我等一百零八号，叫到时提醒我。",
+      "expected": {
+        "action": "wait",
+        "kind": "number",
+        "target": "108"
+      }
+    },
+    {
+      "text": "取消刚才的等待任务。",
+      "expected": {
+        "action": "cancel",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "不用等那辆公交了。",
+      "expected": {
+        "action": "cancel",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "那个屏幕现在显示的是多少号？",
+      "expected": {
+        "action": "ask",
+        "kind": "",
+        "target": ""
+      }
+    },
+    {
+      "text": "那辆公交是几路的？",
+      "expected": {
+        "action": "ask",
+        "kind": "",
+        "target": ""
+      }
+    }
+  ]
+}

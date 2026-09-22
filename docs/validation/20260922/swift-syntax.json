@@ -1,0 +1,128 @@
+{
+  "scope": "Tree-sitter grammar check only. This does not compile, type-check or run Swift.",
+  "compiled": false,
+  "executed": false,
+  "files": [
+    {
+      "file": "apple/PRTSCore/Package.swift",
+      "syntax_ok": true,
+      "sha256": "903eef4309464b2ac4dd9152baccc8b90d9f5c439437716313c4ccd69ad2a941"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/AMapService.swift",
+      "syntax_ok": true,
+      "sha256": "80373cb05b8a224ab99fb2b09c86eb65cef9373445363172a7b41b213c4098c8"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/AppleSpeechOutput.swift",
+      "syntax_ok": true,
+      "sha256": "e3cdb1dbea0c3ca22b44a5f9b8bd21d60c89889459488b696b0f8170e183b2d6"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/CameraAdapter.swift",
+      "syntax_ok": true,
+      "sha256": "f279e67a81d60725535acd7343910dcd18411d823f5ab727ec980aa59a87ca71"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/CorridorPlanner.swift",
+      "syntax_ok": true,
+      "sha256": "54c977018e3b1c0b265c624bf3cf3802ec8f6ebfbd1d2db6aa67150b9337b9d0"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/ForwardScan.swift",
+      "syntax_ok": true,
+      "sha256": "55900dcc2ecdc714881140ecc35a632cb2743282e10ddfc62dd75e79791aab03"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/LocalGuide.swift",
+      "syntax_ok": true,
+      "sha256": "9a01fecdc9020f7ad7a18a0afae993487fff328a7fbf5a89c6dad0c188f145c0"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/NativePerception.swift",
+      "syntax_ok": true,
+      "sha256": "af80861fe7fca64135774b97e9cd69b3100edb5be352037272ee7ae86567a1c9"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/NativeVisionLanguageModel.swift",
+      "syntax_ok": true,
+      "sha256": "315c901510a3beeb706dbf8cdaeeeb9d31cae15c21e34676de7491df958dfadd"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/ONNXModel.swift",
+      "syntax_ok": true,
+      "sha256": "ec954133f202836bb0b5d3857f3242a31276b461e98ad99c073e7080e091cbfb"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/PRTSCoreSession.swift",
+      "syntax_ok": true,
+      "sha256": "72d486680c00426ef77802ba3f78e62992783eb33d0f1c0d7f95a7eeea3cf919"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/QueueReader.swift",
+      "syntax_ok": true,
+      "sha256": "02991fb2feadfe0f03751a802682b206d76f00001f926d87581dfc509944bca8"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/SenseVoice.swift",
+      "syntax_ok": true,
+      "sha256": "c10abe510185b87296d13508425ef11155b6f8b5cec9feb22dd803cae8dfb6e1"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/VisionTextReader.swift",
+      "syntax_ok": true,
+      "sha256": "ea0849aac5cb363ad9e4160c13558f008e3cea0adf68cf47f11c574cdb812538"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSAppleModels/VisualWaitingBrain.swift",
+      "syntax_ok": true,
+      "sha256": "b57cb4aba1f812e5606723c0f0bfe0217b5cc32b19a2f656642194359bd74c4e"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/CommandRouter.swift",
+      "syntax_ok": true,
+      "sha256": "618ee5240d060dd98fda6ecce75acdb364786bedfef4d5e36a9188ca02e8f4dd"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/Contracts.swift",
+      "syntax_ok": true,
+      "sha256": "77f164579e35fdcb0751b7f695ba483a4983c99986b425304b27f193836f25aa"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/CoreEvent.swift",
+      "syntax_ok": true,
+      "sha256": "2907b6596a835c2ac47160a143ae6811d2d564b48e3b189de79f906291b43b10"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/Navigation.swift",
+      "syntax_ok": true,
+      "sha256": "8c0f89eb10f1188f241212c7b3e4fc189c7e94d80d60aba689c07b7e5cb760d4"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/PCMBuffer.swift",
+      "syntax_ok": true,
+      "sha256": "83160f76327e955585cd1f462480cc75e5806beee559bb13dc8cecb8c1f703ac"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/QueueTextRules.swift",
+      "syntax_ok": true,
+      "sha256": "a25d20d95f220b32f633fadd30f6674ff9767e262e0b3a5ae540528a85b8b6ba"
+    },
+    {
+      "file": "apple/PRTSCore/Sources/PRTSContracts/TaskState.swift",
+      "syntax_ok": true,
+      "sha256": "5fac2e7f171eb8bbdaf2882f260bfaf813624a2992cfdcf0c509f51bbc4eec9a"
+    },
+    {
+      "file": "apple/PRTSCore/Tests/PRTSContractsTests/ContractTests.swift",
+      "syntax_ok": true,
+      "sha256": "0037867bdc5238a219f42480c8358a16a8186389a714c76659170fd0fae7e64e"
+    },
+    {
+      "file": "apple/PRTSCore/Tests/PRTSContractsTests/PythonParityTests.swift",
+      "syntax_ok": true,
+      "sha256": "9870031781242247c8e122b4cd51302f3f5a7b2029d0cbceb8f82d715918bc55"
+    }
+  ],
+  "passed": true
+}

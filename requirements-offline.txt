@@ -1,0 +1,18 @@
+# Separate environment; keep the original requirements.txt unchanged.
+numpy>=1.26,<3
+opencv-python>=4.8
+onnxruntime>=1.20
+torch>=2.6
+torchvision
+transformers>=5.7,<6
+accelerate>=1.2
+huggingface-hub>=1
+safetensors>=0.8
+ultralytics>=8.3,<9
+faster-whisper>=1.2,<2
+Pillow>=10
+psutil>=6
+rapidocr==3.9.2
+sounddevice>=0.5,<1
+soundfile>=0.12,<1
+pyttsx3>=2.99,<3

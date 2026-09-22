@@ -1,0 +1,27 @@
+{
+  "complete": true,
+  "checks": [
+    {
+      "name": "hash-verification",
+      "exit_code": 0,
+      "seconds": 3.264999999999418
+    },
+    {
+      "name": "unit-tests",
+      "exit_code": 0,
+      "seconds": 4.077999999994063
+    },
+    {
+      "name": "real-brain",
+      "exit_code": 0,
+      "seconds": 63.328000000008615
+    },
+    {
+      "name": "real-recording",
+      "exit_code": 0,
+      "seconds": 48.921999999991385
+    }
+  ],
+  "brain_cases_passed": 2,
+  "scope": "Extracted code, weights and media; existing installed Windows Python dependencies. Not a fresh OS or Apple execution."
+}

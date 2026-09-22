@@ -1,0 +1,240 @@
+{
+  "date": "2026-09-22",
+  "hardware": "Intel i5-13600KF; RTX 4070 SUPER 12GiB; RAM 32GiB; Windows; Python 3.11.9",
+  "note": "Observed desktop runs, not accuracy scores or controlled performance benchmarks. Commands and model loading separate from frame timings.",
+  "cases": {
+    "final-sidewalk": {
+      "frames": 21,
+      "states": {
+        "CANDIDATE": 11,
+        "DETOUR": 6,
+        "STOP": 3,
+        "WAIT": 1
+      },
+      "processing_ms": {
+        "mean": 259.4836238086351,
+        "p50": 178.6493000035989,
+        "p95": 209.30579999549082
+      },
+      "peak_sampled_rss_bytes": 1762861056,
+      "gpu_peak_allocated_bytes": 967308288,
+      "speech_files": 0,
+      "commands": [],
+      "alerts": [],
+      "decoded_video_frames": 22,
+      "video_duration_s": 5.5
+    },
+    "final-obstacles": {
+      "frames": 20,
+      "states": {
+        "CANDIDATE": 10,
+        "DETOUR": 2,
+        "STOP": 1,
+        "WAIT": 7
+      },
+      "processing_ms": {
+        "mean": 244.24677499955578,
+        "p50": 156.7779500001052,
+        "p95": 266.9767950013932
+      },
+      "peak_sampled_rss_bytes": 1778171904,
+      "gpu_peak_allocated_bytes": 967308288,
+      "speech_files": 0,
+      "commands": [],
+      "alerts": [],
+      "decoded_video_frames": 42,
+      "video_duration_s": 10.5
+    },
+    "final-hydrant": {
+      "frames": 45,
+      "states": {
+        "CANDIDATE": 23,
+        "WAIT": 22
+      },
+      "processing_ms": {
+        "mean": 190.2283266658843,
+        "p50": 150.89910000097007,
+        "p95": 171.43341999617405
+      },
+      "peak_sampled_rss_bytes": 1764855808,
+      "gpu_peak_allocated_bytes": 967308800,
+      "speech_files": 0,
+      "commands": [],
+      "alerts": [],
+      "decoded_video_frames": 48,
+      "video_duration_s": 12.0
+    },
+    "final-voice": {
+      "frames": 21,
+      "states": {
+        "CANDIDATE": 11,
+        "DETOUR": 6,
+        "STOP": 3,
+        "WAIT": 1
+      },
+      "processing_ms": {
+        "mean": 154.16160952285975,
+        "p50": 91.27569999691332,
+        "p95": 135.6177999987267
+      },
+      "peak_sampled_rss_bytes": 3444506624,
+      "gpu_peak_allocated_bytes": 3697349120,
+      "speech_files": 11,
+      "commands": [
+        {
+          "total_processing_ms": 9927.66400000255
+        },
+        {
+          "total_processing_ms": 12240.306599996984
+        },
+        {
+          "total_processing_ms": 4841.411200002767
+        }
+      ],
+      "alerts": [],
+      "decoded_video_frames": 21,
+      "video_duration_s": 5.25
+    },
+    "final-notice": {
+      "frames": 1,
+      "states": {
+        "WAIT": 1
+      },
+      "processing_ms": {
+        "mean": 1263.0102000039187,
+        "p50": 1263.0102000039187,
+        "p95": 1263.0102000039187
+      },
+      "peak_sampled_rss_bytes": 3162460160,
+      "gpu_peak_allocated_bytes": 956630528,
+      "speech_files": 1,
+      "commands": [
+        {
+          "total_processing_ms": 11195.557600003667
+        }
+      ],
+      "alerts": [],
+      "decoded_video_frames": 1,
+      "video_duration_s": 0.5
+    },
+    "final-bus": {
+      "frames": 50,
+      "states": {
+        "CANDIDATE": 26,
+        "DETOUR": 18,
+        "STOP": 1,
+        "WAIT": 5
+      },
+      "processing_ms": {
+        "mean": 996.7424800001027,
+        "p50": 1153.2874500007892,
+        "p95": 2653.6353200015583
+      },
+      "peak_sampled_rss_bytes": 3197284352,
+      "gpu_peak_allocated_bytes": 967308800,
+      "speech_files": 2,
+      "commands": [
+        {
+          "total_processing_ms": 9434.68589999975
+        }
+      ],
+      "alerts": [
+        {
+          "time_s": 22.0,
+          "source": "visual"
+        }
+      ],
+      "decoded_video_frames": 50,
+      "video_duration_s": 25.0
+    },
+    "final-numbers-audio": {
+      "frames": 16,
+      "states": {
+        "WAIT": 16
+      },
+      "processing_ms": {
+        "mean": 1349.3413687492648,
+        "p50": 892.4234000005526,
+        "p95": 5460.085974997128
+      },
+      "peak_sampled_rss_bytes": 2809757696,
+      "gpu_peak_allocated_bytes": 967306752,
+      "speech_files": 2,
+      "commands": [
+        {
+          "total_processing_ms": 9353.875300002983
+        }
+      ],
+      "alerts": [
+        {
+          "time_s": 9,
+          "source": "audio"
+        }
+      ],
+      "decoded_video_frames": 16,
+      "video_duration_s": 16.0
+    },
+    "final-numbers-visual": {
+      "frames": 16,
+      "states": {
+        "WAIT": 16
+      },
+      "processing_ms": {
+        "mean": 907.4265875010497,
+        "p50": 1055.2612000028603,
+        "p95": 1787.112874995728
+      },
+      "peak_sampled_rss_bytes": 2801061888,
+      "gpu_peak_allocated_bytes": 967306752,
+      "speech_files": 3,
+      "commands": [
+        {
+          "total_processing_ms": 9694.946099996741
+        },
+        {
+          "total_processing_ms": 4576.438099997176
+        }
+      ],
+      "alerts": [
+        {
+          "time_s": 10,
+          "source": "visual"
+        }
+      ],
+      "decoded_video_frames": 16,
+      "video_duration_s": 16.0
+    },
+    "final-offline-road": {
+      "frames": 1,
+      "states": {
+        "WAIT": 1
+      },
+      "processing_ms": {
+        "mean": 1320.5063000059454,
+        "p50": 1320.5063000059454,
+        "p95": 1320.5063000059454
+      },
+      "peak_sampled_rss_bytes": 3776962560,
+      "gpu_peak_allocated_bytes": 3596088832,
+      "speech_files": 1,
+      "commands": [
+        {
+          "total_processing_ms": 17934.3360999992
+        }
+      ],
+      "alerts": [],
+      "decoded_video_frames": 1,
+      "video_duration_s": 0.5
+    }
+  },
+  "verified_wav_files": 20,
+  "code_sha256": {
+    "prts_core/__init__.py": "5deab07d9789790f56015ed12cf193147f1488be300b5c1cdd9d515ae0dd9c1b",
+    "prts_core/demo.py": "6c1c69206d9b30e57b25e87a3f6ba25e5affcac3723c285f43c2cba80c3f1f07",
+    "prts_core/guidance.py": "214712ed694f31cb93298033ffd037db8bb5711c521971a24c3a4a034635f87f",
+    "prts_core/intent.py": "fc2eb5fa7048f6d8272ba93d43cb10faae45689d3ca26322d57d52d75edc5fe1",
+    "prts_core/models.py": "a624f47dae987d2b22778185d6a25cf28b0e1236fd8b01f53431ab7633b30f63",
+    "prts_core/speech.py": "ea03435a01f2225749eeb576ba84f85687e9100df53c2923f82017eec8f19bcc",
+    "prts_core/tasks.py": "a570797cec9b725df5ed84fb00299991978bb07909c236f0be0df9a0677c48dc"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "origin": "Generated sine tones; original project assets",
+  "meaning": "Notification cues only; no crossing or boarding permission",
+  "files": [
+    {
+      "cue": "target_found",
+      "file": "target_found.wav",
+      "sample_rate": 22050,
+      "channels": 1,
+      "duration_s": 0.3800453514739229,
+      "sha256": "ed3fa384cb1ba815f17ab1ba1afdccb030ccd8802845414b0f06fa42c1f354cd"
+    },
+    {
+      "cue": "attention",
+      "file": "attention.wav",
+      "sample_rate": 22050,
+      "channels": 1,
+      "duration_s": 0.42993197278911566,
+      "sha256": "37daa838187eda7f13cd63574449c7812f4078eca8369edea65b823079cf3fd5"
+    },
+    {
+      "cue": "arrived",
+      "file": "arrived.wav",
+      "sample_rate": 22050,
+      "channels": 1,
+      "duration_s": 0.42,
+      "sha256": "aa455703c99ea1c5882e7e78f55e35d42afac01701ac9a10a9a2e63bffdda6e3"
+    }
+  ]
+}

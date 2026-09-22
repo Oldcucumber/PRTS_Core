@@ -1,0 +1,12 @@
+{
+  "source_run": "outputs/stage2/streaming/citybus20-brain-v2",
+  "evidence_age_s": 29.203,
+  "model_call_s": 27.7414632,
+  "vision_encoding_s": 8.816,
+  "image_prefill_s": 10.82,
+  "image_tokens": 480,
+  "tts_after_decision_s": 0.032,
+  "remaining_model_s": 8.1054632,
+  "outside_model_s": 1.4615368,
+  "remaining_times_are_subtracted_not_separately_profiled": true
+}

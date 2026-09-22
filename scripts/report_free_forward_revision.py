@@ -1,0 +1,47 @@
+"""Report the requested navigation correction and actual dynamic bus demonstrations."""
+import json
+import statistics
+from pathlib import Path
+
+ROOT=Path(__file__).resolve().parents[1]
+def read(path):return json.loads((ROOT/path).read_text(encoding='utf-8'))
+
+def main():
+    lines=['# 自由前进、连续公交录像与模型选择复核','',
+        '本文件是第二版包的当前验证入口。第一版报告保留其原始测量范围；本次没有改变等待任务的 v9 多模态判断协议。','',
+        '## 自由前进行为','',
+        '没有连续人行道时进入 free_forward。只播报一次进入提示，此后每帧判断相机正前方监测区：无障碍不说话，障碍出现时提醒，持续同一状态不重复；障碍消失后再次出现可重新提醒。恢复人行道后回到路径导航。没有连续人行道不再等同于等待原地不动。', '',
+        '默认监测水平约 ±15°，按 60° 假设水平视场计算，图像监测范围约 x=0.268–0.732、y=0.55–1。Guide/LocalGuide 可配置角度；没有标定内参，不声称是真实精确角度或米制距离。检测框和高置信度固定/动态语义区域共同参与，侧方和高处区域不触发这个前向提醒。自由模式不输出虚构的人行道路径。', '',
+        '63 项 Python 测试通过，其中新增无连续人行道、前方/侧方/高处障碍、仅分割可见的固定障碍、重复播报和障碍再次出现的测试；24 个 Swift 文件通过语法检查，Apple 尚未编译执行。', '',
+        '## 为什么当前选 Qwen3-VL','',
+        'MiniCPM-V 4.6 更小这一点成立。[官方模型卡](https://huggingface.co/openbmb/MiniCPM-V-4.6)介绍其 0.8B 语言模型、SigLIP2 视觉编码器及端侧压缩方案。本轮直接用已下载的 MiniCPM Q5 语言 + Q8 视觉，在相同 22 个用例、v9 提示词、结构化协议、官方 llama.cpp 提交、CPU 6 线程和 greedy 下重新测试。Qwen 使用 Q4 语言 + Q8 视觉。比较的是当前可运行配置，不能外推成所有量化、切片、压缩和 Apple 配置的能力排名。', '',
+        '| 当前组合 | 权重合计 | 正例提醒 | 负例误提醒 | 视觉判断中位耗时 |', '|---|---:|---:|---:|---:|']
+    for folder,label,size in [('minicpm-v9-same-contract','MiniCPM-V 4.6 Q5 + Q8',1.3044),('final-v9-q8-t6','Qwen3-VL 4B Q4 + Q8',2.9513)]:
+        result=read('outputs/stage2/brain/'+folder+'/results.json');assert result['complete']
+        times=[r['response']['total_processing_ms']/1000 for r in result['results'] if r['response']['observation_channel']=='vision']
+        lines.append(f"| {label} | {size:.2f} GB | {result['positive_hits']}/{result['positive_count']} | {result['false_positives']}/{result['total']-result['positive_count']} | {statistics.median(times):.2f} 秒 |")
+    lines+=['', 'MiniCPM 本轮误提醒包括把车身 17663 当线路、101X 当成目标 101、K1 站牌当成车辆到达；漏掉取餐 215 与广播 A108。原始结果位于 outputs/stage2/brain/minicpm-v9-same-contract。Qwen 本组没有最终误提醒，但有两次不确定输出。保留 Qwen 是当前等待语义效果的取舍，并不是否定 MiniCPM 的体积优势。', '',
+        'MiniCPM 的广播文字分支约 1.75 秒中位数，Qwen 约 6.15 秒；视觉流程没有呈现同样的整体速度优势。耗时包含实际提示、视觉处理和生成，不是同 token 数的纯解码速度测试；MiniCPM 官方端侧优化、不同压缩及模型专用提示词仍值得继续评估。', '',
+        '## 新大脑的真实连续公交录像','',
+        '本轮使用原始连续视频 1× 输入，没有循环照片、替换车牌、绘制目标号码或用 OCR 规则直接完成等待。20/20A 用相同 Citybus 视频前 39 秒，脚本输入不同目标；912 使用用户原始录像及原始录音，旧应用 UI 的遮挡区域随场景说明。', '',
+        '| 回放 | 处理帧 | 实际目标提醒 | 运行错误 |', '|---|---:|---|---:|']
+    for name in ['citybus20-brain-v2','citybus20-other-v2','private-bus-brain','free-forward-final']:
+        run=read('outputs/stage2/streaming/'+name+'/summary.json')
+        events=[json.loads(s) for s in (ROOT/'outputs/stage2/streaming'/name/'events.jsonl').read_text(encoding='utf-8').splitlines()]
+        notices=[e.get('text','') for e in events if e['type']=='target_observed']
+        errors=sum(e['type'] in ('worker_error','request_error') for e in events)
+        lines.append(f"| {name} | {run['stats']['frames_processed']}/{run['stats']['frames_received']} | {'；'.join(notices) or '无'} | {errors} |")
+        if name=='free-forward-final':
+            memory=run['memory'];entry=sum(e['type']=='speech_request' and e['text'].startswith('进入自由前进') for e in events)
+            nag=sum(e['type']=='speech_request' and '暂未找到连续人行道' in e['text'] for e in events)
+            tail=[f'330 秒综合回放中，进入自由模式播报 {entry} 次（对应退出/重新进入的不同阶段），旧“暂未找到连续人行道”播报 {nag} 次。',
+                f"本次保守核心峰值 {memory['peak_conservative_desktop_envelope_bytes']/1e9:.3f} GB；加假设 2 GB 前端为 {memory['with_assumed_frontend_2gb']/1e9:.3f} GB。该资源统计仍是桌面值，前端预留未实测。"]
+    lines+=['',*tail,'',
+        '本次已知失败：912 原始录像中，ASR 正确识别等待目标，但大脑首轮观察的画面只有路面；约 29 秒后完成，输入片段已结束，未捕获后来的车辆。综合回放中 101 被大脑识别正确，但结果生成时画面年龄 32.375 秒，超过车辆提醒的 30 秒证据限制，所以没有播报。C002/B003 完成提醒。原三目标综合验收本次为失败，BUNDLE.json 的 replay_acceptance 如实记录；打包不等于这些失败通过，不放宽车辆证据年龄来凑结果。', '',
+        '正例未提醒、反例误提醒或视频结束后才产生的结果均按日志原样保留。录像显示真实生成时刻和证据年龄；CPU 大脑仍有数十秒延迟，不把回顾性识别写成实时登车许可。', '',
+        '录像：outputs/stage2/demos/citybus20-brain-v3-timeline/demo.mp4、citybus20-other-v3-timeline/demo.mp4、private-bus-brain-v2-timeline/demo.mp4；综合修订：free-forward-final-timeline/demo.mp4。输入及原始模型响应在对应 streaming 目录。', '',
+        '完整 ZIP 包括新源码、权重、播放 WAV、前端契约、原理图和原始证据。Apple 世界空间 AR、LiDAR 与整套 8 GB 仍沿用先前未验证边界。']
+    (ROOT/'docs/REVISION_FREE_FORWARD.md').write_text('\n'.join(lines)+'\n',encoding='utf-8')
+    print('Wrote revision report from completed actual runs')
+
+if __name__=='__main__':main()

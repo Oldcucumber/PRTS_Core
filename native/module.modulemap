@@ -1,0 +1,4 @@
+framework module prts_vlm {
+    umbrella header "prts_vlm.h"
+    export *
+}

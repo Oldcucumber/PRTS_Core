@@ -1,0 +1,94 @@
+{
+  "frozen_before_inference": true,
+  "scope": "Five new real photographs, manually labelled before production OCR. JTrust/Masmitra share the prior supplier; the other three have distinct sources. Still-image evidence only, no temporal/ASR claim.",
+  "cases": [
+    {
+      "id": "jtrust",
+      "source": "outputs/stage2/queue-holdout/data-v2/jtrust.jpg",
+      "sha256": "2dc9ef41b62fcce3260909e82d448bc13b87b8a372d35afc86f8fa02820cf69a",
+      "positive_targets": [],
+      "negative_targets": [
+        "912",
+        "A108",
+        "9999",
+        "006",
+        "003"
+      ],
+      "annotation": "Blurred real bank screen. Main current-number field is dashed/unclear. Lower entries include letter prefixes but positive labels are not reliable; specified absent identifiers only. Same supplier as development bank photo."
+    },
+    {
+      "id": "masmitra",
+      "source": "outputs/stage2/queue-holdout/data-v2/masmitra.jpg",
+      "sha256": "eceab53116fa682143f04797bee695f195a281ecf4ca3d91ce5c895b88121caa",
+      "positive_targets": [
+        "B003",
+        "A002",
+        "C002",
+        "D002"
+      ],
+      "negative_targets": [
+        "003",
+        "002",
+        "2",
+        "1",
+        "3",
+        "4",
+        "05",
+        "53",
+        "2018"
+      ],
+      "annotation": "Main call B-003 for LOKET 2; lower row displays A-002/B-003/C-002/D-002 at four counters. Counters and clock/date are not tickets. Real hospital display, same supplier as development bank photo."
+    },
+    {
+      "id": "japan-led",
+      "source": "outputs/stage2/queue-holdout/data-v2/japan-led.jpg",
+      "sha256": "49dc2ab26ef99e2dc634ebb091b6be445b10b66d9e95fe800fb2640227cb0329",
+      "positive_targets": [
+        "555",
+        "398",
+        "554"
+      ],
+      "negative_targets": [
+        "8",
+        "5",
+        "6",
+        "55",
+        "399",
+        "556",
+        "912"
+      ],
+      "annotation": "Real Thai/English NUMBER/COUNTER display, despite Japanese file title. Left column calls 555, 398, 554; right counters 8,5,6; exchange-rate table below."
+    },
+    {
+      "id": "pharmacy",
+      "source": "outputs/stage2/queue-holdout/data-v2/pharmacy.jpg",
+      "sha256": "568a2a0d9ff7f2ac45b62f84ca8665a11fbe20fb6bd4ef382f936517e6528989",
+      "positive_targets": [
+        "43"
+      ],
+      "negative_targets": [
+        "4",
+        "3",
+        "44",
+        "912"
+      ],
+      "annotation": "Real pharmacy display UW NUMMER 43, full scene with chair. Different photographer/device, visible number manually checked."
+    },
+    {
+      "id": "burrito-ad",
+      "source": "outputs/stage2/queue-holdout/data-v2/burrito-ad.jpg",
+      "sha256": "453ebbc11273f38892022310f291addd8c16dffbac105e9c1c75511793ff2a2f",
+      "positive_targets": [],
+      "negative_targets": [
+        "3",
+        "50",
+        "350",
+        "503",
+        "365",
+        "912",
+        "A108"
+      ],
+      "annotation": "Real cafe advertisement Now Serving Breakfast Burrito, price $3.50. No called-number display. Visible price and background figures are negatives."
+    }
+  ]
+}

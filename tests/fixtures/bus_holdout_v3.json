@@ -1,0 +1,9 @@
+{
+  "scope": "Frozen after manual image inspection and before first model evaluation. Static visible-sign/negative audit only; not temporal arrival accuracy. Public pretraining exposure is unknown.",
+  "cases": [
+    {"id": "commons-manchester-101", "file": "Stagecoach Manchester bus 101.jpg", "media_type": "image", "expected_route": "101", "negative_targets": ["10", "101X", "17663", "912"], "label_review": "Front display visibly reads 101; 17663 is the fleet number. Adjacent 37 bus is visible and is not a negative target."},
+    {"id": "commons-nwfb-101x", "file": "NWFB Route 101X.JPG", "media_type": "image", "expected_route": "101X", "negative_targets": ["101", "10", "5529", "PU1611", "912"], "label_review": "Front display visibly reads 101X; 5529 is the fleet number and PU1611 is the number plate."},
+    {"id": "commons-k1-stop", "file": "Airport Express shuttle bus K1 Eaton Hotel stop.JPG", "media_type": "image", "expected_route": null, "negative_targets": ["K1", "1", "912"], "label_review": "K1 is visible on the stop marker, not on an identifiable arriving K1 vehicle. No positive arrival evidence."},
+    {"id": "commons-beijing-night9", "file": "10123946 at the south gate Olympic Forest Park 20170709083206.jpg", "media_type": "image", "expected_route": null, "negative_targets": ["夜9", "9", "10123946", "912"], "label_review": "The LED display is incomplete and unreadable due to capture bands. Night 9 came from the Commons category, not visible pixels; changed from proposed positive to unknown before any model run. Fleet number 10123946 is readable. Do not use metadata as model evidence."}
+  ]
+}

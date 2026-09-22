@@ -5,3 +5,19 @@ __pycache__/
 dist/
 outputs/
 .publish/
+.venv*/
+models/
+build/
+*.dll
+*.so
+*.dylib
+*.xcframework/
+apple/PRTSCore/.build/
+
+# Local credentials and generated development state
+.env
+.env.*
+!.env.example
+.pytest_cache/
+.DS_Store
+/Vendor/

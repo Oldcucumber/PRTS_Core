@@ -1,0 +1,67 @@
+{
+  "frozen_before_inference": true,
+  "scope": "Actual photographs; checks visible called-number evidence, not an audio announcement or temporal queue-change test",
+  "cases": [
+    {
+      "id": "commons-hk-foodcourt",
+      "positive_targets": [
+        "215",
+        "195",
+        "199",
+        "186",
+        "187",
+        "180",
+        "163",
+        "162",
+        "494",
+        "493",
+        "496",
+        "495",
+        "489",
+        "459",
+        "488",
+        "487"
+      ],
+      "negative_targets": [
+        "194",
+        "4940",
+        "912",
+        "9999"
+      ],
+      "annotation": "Two pick-up-number screens, all sixteen visible ready-order numbers; no temporal arrival claim.",
+      "source": "outputs/stage2/queue-holdout/data/commons-hk-foodcourt.jpg",
+      "sha256": "2f5d56d81ab7426be367cf18cdc8e7573b48b490a0c82c9690a8b4228d5f86c6"
+    },
+    {
+      "id": "commons-bank-queue",
+      "positive_targets": [
+        "C002"
+      ],
+      "negative_targets": [
+        "002",
+        "2",
+        "3",
+        "9",
+        "10",
+        "11",
+        "12",
+        "108"
+      ],
+      "annotation": "C-002 is the displayed called identifier; canonical C002 preserves letter and leading zeros. LOKET 3 is a counter; other small numbers are exchange rates/percentages.",
+      "source": "outputs/stage2/queue-holdout/data/commons-bank-queue.jpg",
+      "sha256": "02727325b19d778dd5d85365f6d955111341b2725fec04c16f3f089887a03a37"
+    },
+    {
+      "id": "commons-prague-queue",
+      "positive_targets": [],
+      "negative_targets": [
+        "912",
+        "A108",
+        "9999"
+      ],
+      "annotation": "Wide real post-office photo; LED numbers are too blurred for confident positive manual labels. Only specified absent-identifier negatives; no counter-number negatives due ambiguity.",
+      "source": "outputs/stage2/queue-holdout/data/commons-prague-queue.jpg",
+      "sha256": "7bfe07b5d7fa308b8a1639bea8d56f64c0eb6a0960f044b99bc30ebce617c3c8"
+    }
+  ]
+}
