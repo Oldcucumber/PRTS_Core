@@ -36,7 +36,7 @@
 
 ## 本机交付与复现
 
-当前工作树：`C:/Users/JIONG/.codex/worktrees/3a3e/PRTS_Core`。原 `D:/gpd/PRTS_Core` 的 main 工作区未合并这些更改；远端修订位于 `codex/prts-core-prototype` 分支。
+后续直接在 `D:/gpd/PRTS_Core` 的 `main` 分支继续，源码与文档已合并并推送到远端 `main`，临时 `codex/prts-core-prototype` 分支已删除。原实验工作树 `C:/Users/JIONG/.codex/worktrees/3a3e/PRTS_Core` 保留为脱离分支的历史快照，其中的虚拟环境、模型和运行日志仍然保留；这些忽略提交的资源不会因 Git 合并自动移动到主目录。
 
 交付目录：`D:/gpd/PRTS_Core_Delivery/20260922_revision/`，包括四段演示、原理图、修订报告及 `PRTS_Core_brain_20260922_v2.zip`。ZIP 4,956,788,307 字节，SHA256：`ef36cf01253a8f63f06b23c70f8a4ac84a685978e84f11a96de3167aca8bbfb8`。这次 Git 收尾新增的索引、交接及延迟文档不回写冻结 ZIP，核心运行代码与该包一致。
 
