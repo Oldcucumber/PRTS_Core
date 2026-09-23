@@ -1,0 +1,30 @@
+{
+  "base": "http://127.0.0.1:8490/camera-selection/",
+  "passed": [
+    "enumeration",
+    "refresh preserves selection",
+    "cancel",
+    "exact lens selection",
+    "old track release",
+    "remember on reload",
+    "switch during inference",
+    "device removal",
+    "auto recovery",
+    "enumeration failure"
+  ],
+  "constraints": {
+    "deviceId": {
+      "exact": "wide"
+    },
+    "width": {
+      "ideal": 1280
+    },
+    "height": {
+      "ideal": 1280
+    },
+    "resizeMode": {
+      "ideal": "none"
+    }
+  },
+  "errors": []
+}

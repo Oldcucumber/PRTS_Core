@@ -36,7 +36,8 @@ try{
   assert.equal(response.headers()['cross-origin-embedder-policy'],undefined);
   results.crossOriginIsolated=await page.evaluate(()=>crossOriginIsolated);
   assert.equal(results.crossOriginIsolated,false);
-  await page.waitForFunction(()=>document.querySelector('video').srcObject?.active);
+  await page.waitForFunction(()=>document.querySelector('video').videoWidth>0);
+  assert.equal(await page.evaluate(()=>document.querySelector('video').srcObject),null);
   async function configure(backend,profile='fast',source='sample'){
     await page.click('#settings');
     await page.selectOption('#input-source',source);

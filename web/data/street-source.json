@@ -1,0 +1,13 @@
+{
+  "title": "SANPO real chest-camera street sequence",
+  "author": "Waghmare et al. / Google Research",
+  "license": "CC BY 4.0",
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "source": "https://github.com/google-research-datasets/sanpo_dataset",
+  "session": "28tdwxgz-zPU06lpeDY3OPWTFxZyBv2c",
+  "camera": "camera_chest/left",
+  "frames": "000000–000179",
+  "fps": 15,
+  "duration_s": 12,
+  "modifications": "Original contiguous frames resized to width 960 and encoded H.264; browser adds prediction overlays. No fabricated obstacles or route markers in source."
+}

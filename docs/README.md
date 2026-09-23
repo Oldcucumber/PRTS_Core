@@ -4,6 +4,8 @@
 
 ## 当前交接
 
+- [WEB_PLATFORM](WEB_PLATFORM.md)：2026-09-23 Web 小脑体验功能、运行和验证。
+
 - [HANDOFF](HANDOFF.md)：下一次从哪里继续。
 - [REVISION_FREE_FORWARD](REVISION_FREE_FORWARD.md)：自由前进、真实公交演示和 MiniCPM/Qwen 对比。
 - [LATENCY_ANALYSIS](LATENCY_ANALYSIS.md)：29 秒推理延迟的实际组成。

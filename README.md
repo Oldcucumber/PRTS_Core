@@ -4,6 +4,10 @@
 
 当前阶段是可运行的 Windows/Python 快速原型，附带 C ABI 和 Swift 接入源码。**Apple 尚未编译或真机验证；动态公交提醒延迟和整套 8 GB 目标尚未达标。**
 
+## Web 快速体验
+
+[打开 GitHub Pages](https://oldcucumber.github.io/PRTS_Core/)：室内／街道示例、摄像头、本地视频，浏览器轻量地面分割、YOLO 障碍检测、自由前进提示、相对深度、TTS 和路线回放。大脑仅作为 Feature 展示，不加载 Qwen/MiniCPM；Web 轻量模型与桌面模型不同。详见 [Web 平台说明](docs/WEB_PLATFORM.md)。
+
 ## 从这里开始
 
 - [本轮交接与下次工作](docs/HANDOFF.md)：当前状态、阻塞问题、代码入口与本机产物位置。

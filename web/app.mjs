@@ -10,7 +10,7 @@ const dialog=$('settings-dialog');
 const cameraPreferenceKey='floor-lab.camera-device';
 function savedCamera(){try{return localStorage.getItem(cameraPreferenceKey)||'';}catch{return '';}}
 function saveCamera(deviceId){try{if(deviceId)localStorage.setItem(cameraPreferenceKey,deviceId);else localStorage.removeItem(cameraPreferenceKey);}catch{}}
-let options={source:'camera',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,file:null,depthEnabled:false,depthView:'overlay'};
+let options={source:'sample',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,file:null,depthEnabled:false,depthView:'overlay'};
 let cameraDevices=[],cameraRefresh=0,activeCameraId='',activeCameraLabel='';
 let draftFile=null;
 let worker=null,stream=null,objectURL=null,generation=0,frameId=0,running=false,busy=false;
@@ -53,9 +53,9 @@ async function refreshCameras(){
   finally{if(request===cameraRefresh)$('refresh-cameras').disabled=false;}
 }
 function updateConfig(){
-  $('pipeline').textContent=options.depthEnabled?'分割＋深度 · DA-V2 Small':'仅分割';
+  $('pipeline').textContent=options.depthEnabled?'分割＋检测＋相对深度':'分割＋YOLO 检测';
   if(!stats.ready)$('depth-metric').textContent=options.depthEnabled?'深度：待启动':'深度：关闭';
-  $('source-label').textContent=options.source==='camera'?cameraName():options.source==='sample'?'内置测试视频':options.file?.name||'本地视频';
+  $('source-label').textContent=options.source==='camera'?cameraName():options.source==='sample'?'室内示例 · 真实短片':options.source==='street'?'街道示例 · SANPO / CC BY 4.0':options.file?.name||'本地视频';
   $('source-label').title=$('source-label').textContent;
   $('config-summary').textContent=`${options.profile==='fast'?'192 × 320':'288 × 512'} · 阈值 ${options.threshold.toFixed(2)}`;
   if(!stats.ready){
@@ -118,7 +118,7 @@ function ensureInput(){
       }else if(options.source==='file'){
         if(!options.file)throw new Error('未选择视频文件');
         objectURL=URL.createObjectURL(options.file);video.src=objectURL;
-      }else video.src=new URL('./test-video.mp4',import.meta.url).href;
+      }else video.src=new URL(options.source==='street'?'./data/street.mp4':'./test-video.mp4',import.meta.url).href;
       video.loop=true;
       await video.play();
       if(token!==generation)return false;
@@ -134,6 +134,7 @@ function ensureInput(){
 async function start(){
   if(running)return;
   const token=generation;
+  window.dispatchEvent(new CustomEvent('prts-start'));
   resetStats();running=true;runButton(true);updateConfig();
   if(!await ensureInput()||token!==generation||!running)return;
   const mode=options.backend,profile=options.profile;
@@ -161,15 +162,16 @@ async function start(){
         // Discard results captured before a source / viewport geometry change.
         if(capturedViewRevision!==viewRevision){schedule();return;}
         render(data);
+        window.dispatchEvent(new CustomEvent('prts-perception',{detail:{...data,ageMs:performance.now()-capturedAt}}));
         const now=performance.now();
         if(lastResultAt){const value=1000/(now-lastResultAt);fps=fps?fps*.75+value*.25:value;}
         lastResultAt=now;
         Object.assign(stats,{frames:stats.frames+1,backend:data.backend,direction:data.direction,inferenceMs:data.inferenceMs,totalMs:now-capturedAt,fps,floorFraction:data.fraction});
-        Object.assign(stats,{segmentationMs:data.segmentationMs,depthMs:data.depthMs,depthEnabled:!!data.depth,depthBackend:data.depth?.backend||null,
+        Object.assign(stats,{segmentationMs:data.segmentationMs,depthMs:data.depthMs,detectorMs:data.detectorMs,detectorBackend:data.detectorBackend,nav:data.nav,objects:data.detections.length,depthEnabled:!!data.depth,depthBackend:data.depth?.backend||null,
           baselineDirection:data.baseline?.direction||data.direction,baselineFloorFraction:data.baseline?.fraction??data.fraction,
           depthRemovedFraction:data.depth?.removedFraction||0,depthFit:data.depth?.fit||null});
         $('depth-metric').textContent=data.depth?`${Math.round(data.depthMs)} ms · 排除 ${(data.depth.removedFraction*100).toFixed(1)}%`:'深度：关闭';
-        $('pipeline').textContent=data.depth?`${options.depthView==='compare'?'左：分割 / 右：＋深度':'分割＋深度'} · ${data.depth.backend.toUpperCase()}${data.depth.fit.valid?'':' · 趋势未采用'}`:'仅分割';
+        $('pipeline').textContent=data.depth?`${options.depthView==='compare'?'左：分割 / 右：＋深度':'分割＋深度'} · ${data.depth.backend.toUpperCase()}${data.depth.fit.valid?'':' · 趋势未采用'}`:'分割＋YOLO 检测';
         $('pipeline').title=data.depth?`Depth Anything V2 Small · 252 × 252${data.depth.fit.valid?'':` · ${data.depth.fit.reason}`}`:'SegFormer-B0';
         stats.samples.push({time:now,inferenceMs:data.inferenceMs,totalMs:stats.totalMs});
         if(stats.samples.length>300)stats.samples.shift();
@@ -181,15 +183,15 @@ async function start(){
   }catch(error){if(token===generation)fail(String(error.message||error));}
 }
 function schedule(){if(running)timer=setTimeout(tick,0);}
-function prepareInput(width,height){
+function prepareInput(width,height,normalize=true){
   resize.width=width;resize.height=height;
   const fit=containRect(capture.width,capture.height,width,height);
-  resizeCtx.fillStyle='rgb(124,116,104)';resizeCtx.fillRect(0,0,width,height);
+  resizeCtx.fillStyle=normalize?'rgb(124,116,104)':'rgb(114,114,114)';resizeCtx.fillRect(0,0,width,height);
   resizeCtx.drawImage(capture,fit.x,fit.y,fit.width,fit.height);
   const contentRect={x:fit.x/width,y:fit.y/height,width:fit.width/width,height:fit.height/height};
   const pixels=resizeCtx.getImageData(0,0,width,height).data,n=width*height,input=new Float32Array(n*3);
   const mean=[.485,.456,.406],std=[.229,.224,.225];
-  for(let i=0;i<n;i++)for(let c=0;c<3;c++)input[c*n+i]=(pixels[i*4+c]/255-mean[c])/std[c];
+  for(let i=0;i<n;i++)for(let c=0;c<3;c++)input[c*n+i]=normalize?(pixels[i*4+c]/255-mean[c])/std[c]:pixels[i*4+c]/255;
   return {input,contentRect};
 }
 function tick(){
@@ -205,9 +207,10 @@ function tick(){
   captureCtx.drawImage(video,0,0,w,h);
   const {input,contentRect}=prepareInput(config.width,config.height);
   const depthInput=options.depthEnabled?prepareInput(config.depthSize,config.depthSize):null;
+  const detectorInput=prepareInput(640,384,false);
   busy=true;frameId++;
-  const transfers=[input.buffer];if(depthInput)transfers.push(depthInput.input.buffer);
-  worker.postMessage({type:'infer',id:frameId,input,contentRect,depthInput:depthInput?.input,depthContentRect:depthInput?.contentRect,threshold:options.threshold,mode:options.backend},transfers);
+  const transfers=[input.buffer,detectorInput.input.buffer];if(depthInput)transfers.push(depthInput.input.buffer);
+  worker.postMessage({type:'infer',id:frameId,input,contentRect,detectorInput:detectorInput.input,detectorRect:detectorInput.contentRect,halfAngle:Number(document.getElementById('forward-angle')?.value||15),depthInput:depthInput?.input,depthContentRect:depthInput?.contentRect,threshold:options.threshold,mode:options.backend},transfers);
 }
 function drawResult(data,depth,style,offset=0,label=''){
   const w=capture.width,h=capture.height;
@@ -221,9 +224,13 @@ function drawResult(data,depth,style,offset=0,label=''){
       color=[40+v*210,100+(1-Math.abs(2*v-1))*80,240-v*200,200];
     }else if(depth?.excluded[i])color=[255,125,45,170];
     else if(data.region[i])color=[66,228,115,85];
+    else if([0,1,4,8,12,17,32,33,43].includes(data.semanticClasses?.[i]))color=[165,114,226,65];
+    else if(data.semanticClasses?.[i]===6)color=[116,145,166,65];
     if(color)image.data.set(color,i*4);
   }
   maskCtx.putImageData(image,0,0);ctx.imageSmoothingEnabled=false;ctx.drawImage(maskCanvas,0,0,w,h);ctx.imageSmoothingEnabled=true;
+  for(const d of data.detections||[]){const [a,b,c,e]=d.box;ctx.strokeStyle=d.blocking?'#ffb168':'#93bcff';ctx.lineWidth=2;ctx.strokeRect(a*w,b*h,(c-a)*w,(e-b)*h);ctx.font=`${Math.max(12,w/55)}px sans-serif`;ctx.fillStyle='#101920';ctx.fillRect(a*w,Math.max(0,b*h-20),Math.min(w-a*w,180),20);ctx.fillStyle='#fff';ctx.fillText(`${d.label} ${Math.round(d.score*100)}%`,a*w+3,Math.max(15,b*h-5));}
+  if(data.nav?.mode==='free_forward'){const [a,b,c,e]=data.nav.scan.sector;ctx.strokeStyle=data.nav.status==='STOP'?'#ffb168':'#67dbc6';ctx.setLineDash([8,6]);ctx.strokeRect(a*w,b*h,(c-a)*w,(e-b)*h);ctx.setLineDash([]);}
   const sx=w/data.width,sy=h/data.height;
   if(data.points.length>1){ctx.beginPath();data.points.forEach(([x,y],i)=>i?ctx.lineTo(x*sx,y*sy):ctx.moveTo(x*sx,y*sy));ctx.strokeStyle='#ffda69';ctx.lineWidth=Math.max(3,w/150);ctx.lineJoin='round';ctx.stroke();}
   if(data.target){
@@ -276,7 +283,7 @@ $('settings-form').onsubmit=async event=>{
   const wasRunning=running;
   dialog.close();
   if(restart)stop('配置已更新');
-  options=next;saveCamera(options.cameraId);updateConfig();
+  options=next;window.dispatchEvent(new CustomEvent('prts-source',{detail:options.source}));saveCamera(options.cameraId);updateConfig();
   if(restart){if(wasRunning)await start();else await ensureInput();}
 };
 video.addEventListener('error',()=>{if(running||inputPromise||inputReady)fail('视频解码失败，请选择浏览器支持的 MP4 / WebM 文件。');});
@@ -294,5 +301,6 @@ navigator.mediaDevices?.addEventListener('devicechange',()=>{void refreshCameras
 document.addEventListener('visibilitychange',()=>{if(document.hidden&&(running||inputPromise||inputReady))stop('页面已进入后台，摄像头与推理已停止');});
 window.addEventListener('pagehide',()=>stop());
 $('compatibility').textContent=!isSecureContext?'非安全连接：摄像头与 WebGPU 需要 HTTPS。':navigator.gpu?'WebGPU API 可用；AUTO 模式在 GPU 不可用时回退 WASM。':'WebGPU API 不可用；AUTO 模式使用 WASM CPU。';
+window.prtsControls={start,stop,async source(name){if(running||inputReady)stop();options.source=name;updateConfig();await ensureInput();},isRunning:()=>running};
 updateConfig();
 ensureInput();

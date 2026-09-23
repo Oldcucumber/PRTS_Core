@@ -1,0 +1,297 @@
+{
+  "destination": {
+    "id": "BV10060627",
+    "name": "江夏大道长岛(公交站)",
+    "point": {
+      "longitude": 114.379872,
+      "latitude": 30.42781,
+      "crs": "GCJ02"
+    },
+    "address": "902路;903路"
+  },
+  "steps": [
+    {
+      "points": [
+        {
+          "longitude": 114.39049,
+          "latitude": 30.429679,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390495,
+          "latitude": 30.429514,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390495,
+          "latitude": 30.429514,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390464,
+          "latitude": 30.42931,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390464,
+          "latitude": 30.42931,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390417,
+          "latitude": 30.428885,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390417,
+          "latitude": 30.428885,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390395,
+          "latitude": 30.42875,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.39036,
+          "latitude": 30.428694,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390299,
+          "latitude": 30.428668,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390169,
+          "latitude": 30.428646,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.390169,
+          "latitude": 30.428646,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.389974,
+          "latitude": 30.428637,
+          "crs": "GCJ02"
+        }
+      ],
+      "instruction": "向西南步行147米左转",
+      "action": "左转",
+      "road": "",
+      "walk_type": "0"
+    },
+    {
+      "points": [
+        {
+          "longitude": 114.38997,
+          "latitude": 30.428633,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.389909,
+          "latitude": 30.428433,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.38987,
+          "latitude": 30.428225,
+          "crs": "GCJ02"
+        }
+      ],
+      "instruction": "向南步行46米右转",
+      "action": "右转",
+      "road": "",
+      "walk_type": "0"
+    },
+    {
+      "points": [
+        {
+          "longitude": 114.389865,
+          "latitude": 30.42822,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.389701,
+          "latitude": 30.428168,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.389648,
+          "latitude": 30.428155,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388919,
+          "latitude": 30.427986,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388919,
+          "latitude": 30.427986,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388859,
+          "latitude": 30.428016,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388785,
+          "latitude": 30.428016,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388724,
+          "latitude": 30.427999,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388676,
+          "latitude": 30.427934,
+          "crs": "GCJ02"
+        }
+      ],
+      "instruction": "向西步行124米向右前方行走",
+      "action": "向右前方行走",
+      "road": "",
+      "walk_type": "0"
+    },
+    {
+      "points": [
+        {
+          "longitude": 114.388672,
+          "latitude": 30.42793,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388394,
+          "latitude": 30.427886,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388064,
+          "latitude": 30.427856,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.388064,
+          "latitude": 30.427856,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.386341,
+          "latitude": 30.427747,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.38378,
+          "latitude": 30.427622,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.381389,
+          "latitude": 30.427465,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380959,
+          "latitude": 30.427448,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380794,
+          "latitude": 30.427461,
+          "crs": "GCJ02"
+        }
+      ],
+      "instruction": "向西步行759米右转",
+      "action": "右转",
+      "road": "",
+      "walk_type": "0"
+    },
+    {
+      "points": [
+        {
+          "longitude": 114.38079,
+          "latitude": 30.427461,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380525,
+          "latitude": 30.427786,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380525,
+          "latitude": 30.427786,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380434,
+          "latitude": 30.427899,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380434,
+          "latitude": 30.427899,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380208,
+          "latitude": 30.428173,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.380208,
+          "latitude": 30.428173,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.379983,
+          "latitude": 30.428281,
+          "crs": "GCJ02"
+        }
+      ],
+      "instruction": "向西北步行120米左转",
+      "action": "左转",
+      "road": "",
+      "walk_type": "0"
+    },
+    {
+      "points": [
+        {
+          "longitude": 114.379978,
+          "latitude": 30.428281,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.379909,
+          "latitude": 30.427947,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.379909,
+          "latitude": 30.427947,
+          "crs": "GCJ02"
+        },
+        {
+          "longitude": 114.379874,
+          "latitude": 30.427813,
+          "crs": "GCJ02"
+        }
+      ],
+      "instruction": "沿江夏大道向南步行53米到达目的地",
+      "action": "",
+      "road": "江夏大道",
+      "walk_type": "0"
+    }
+  ],
+  "provider": "amap",
+  "provenance": {
+    "api": "v5/direction/walking",
+    "crs": "GCJ02"
+  }
+}

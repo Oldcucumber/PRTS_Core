@@ -1,0 +1,27 @@
+{
+  "scope": "Deterministic tensor parity of added output, not model accuracy benchmark",
+  "results": [
+    {
+      "profile": "fast",
+      "sha256": "962a91c2464e61422fdea8d3591e9b294a635a3d3f3b4049d5e7b70fe11d9628",
+      "original_probability_max_error": 0.0,
+      "winning_classes_identical": true,
+      "confidence_shape": [
+        1,
+        80,
+        48
+      ]
+    },
+    {
+      "profile": "quality",
+      "sha256": "f60a4e5096c18b6f498ecd8ecfc65b76598228544d7f13a1b8bdff6666ab36ce",
+      "original_probability_max_error": 0.0,
+      "winning_classes_identical": true,
+      "confidence_shape": [
+        1,
+        128,
+        72
+      ]
+    }
+  ]
+}

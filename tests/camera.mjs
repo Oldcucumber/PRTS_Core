@@ -49,11 +49,12 @@ async function frameBorders(){return page.locator('#result').evaluate(c=>{
   return {width:c.width,height:c.height,left:pixel(.05,.5),right:pixel(.95,.5),top:pixel(.5,.025),bottom:pixel(.5,.975)};
 });}
 try{
-  await page.goto(base,{waitUntil:'networkidle'});
+  await page.goto(base,{waitUntil:'networkidle'});await page.click('#use-camera');
   await page.waitForFunction(()=>document.querySelector('video').videoWidth===1280&&document.getElementById('run-state').textContent==='预览');
   assert.equal(await page.locator('#source').evaluate(v=>getComputedStyle(v).objectFit),'contain');
   const requested=await page.evaluate(()=>window.requestedCameraConstraints.video);
   assert.equal(requested.resizeMode.ideal,'none');assert.equal('aspectRatio' in requested,false);
+  await page.locator('.camera-view').scrollIntoViewIfNeeded();
   const screenshot=await page.screenshot({path:'outputs/camera/full-frame-preview.png'});
   const preview=await page.evaluate(async bytes=>{
     const bitmap=await createImageBitmap(new Blob([new Uint8Array(bytes)],{type:'image/png'}));
@@ -61,7 +62,8 @@ try{
     const ctx=c.getContext('2d');ctx.drawImage(bitmap,0,0);
     // The original red/blue borders must remain visible on both sides.
     const pixel=(x,y)=>Array.from(ctx.getImageData(x,y,1,1).data);
-    return {left:pixel(10,422),right:pixel(380,422)};
+    const v=document.querySelector('video'),r=v.getBoundingClientRect(),scale=Math.min(r.width/v.videoWidth,r.height/v.videoHeight),w=v.videoWidth*scale,h=v.videoHeight*scale,x=r.x+(r.width-w)/2,y=r.y+(r.height-h)/2;
+    return {left:pixel(Math.round(x+w*.05),Math.round(y+h*.5)),right:pixel(Math.round(x+w*.95),Math.round(y+h*.5))};
   },Array.from(screenshot));
   assert.ok(preview.left[0]>preview.left[1]*2);assert.ok(preview.right[2]>preview.right[0]*2);
   await page.click('#settings');await page.selectOption('#backend','wasm');await page.click('.apply');await page.click('#start');

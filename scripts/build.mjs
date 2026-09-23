@@ -7,8 +7,14 @@ import {createHash} from 'node:crypto';
 const root=await realpath(fileURLToPath(new URL('..',import.meta.url)));
 const output=resolve(root,'dist');
 const entries=[
-  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs','depth-fusion.mjs'].map(name=>[`web/${name}`,name]),
+  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs','depth-fusion.mjs','navigation.mjs','experience.mjs','experience.css'].map(name=>[`web/${name}`,name]),
   ...['fast','quality'].map(name=>[`web/models/floor-${name}.onnx`,`models/floor-${name}.onnx`]),
+  ['web/models/detector.onnx','models/detector.onnx'],
+  ['web/models/detector-manifest.json','models/detector-manifest.json'],
+  ['web/data/route.json','data/route.json'],
+  ['web/data/street.mp4','data/street.mp4'],
+  ['web/data/street-source.json','data/street-source.json'],
+  ['licenses/stage2/Ultralytics-AGPL-3.0.txt','licenses/Ultralytics-AGPL-3.0.txt'],
   ['web/models/depth-small.onnx','models/depth-small.onnx'],
   // Non-isolated hosts select Asyncify; isolated development uses JSEP.
   ...['ort.webgpu.min.mjs','ort-wasm-simd-threaded.jsep.mjs','ort-wasm-simd-threaded.jsep.wasm','ort-wasm-simd-threaded.asyncify.mjs','ort-wasm-simd-threaded.asyncify.wasm'].map(name=>[`node_modules/onnxruntime-web/dist/${name}`,`vendor/${name}`]),

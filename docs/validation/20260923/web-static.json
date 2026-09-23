@@ -1,0 +1,232 @@
+{
+  "basePath": "/pages-test/PRTS_Core/",
+  "crossOriginIsolated": false,
+  "cases": {
+    "wasmSingleThread": {
+      "frames": 8,
+      "backend": "wasm",
+      "direction": "FORWARD",
+      "inferenceMs": 272.1000000014901,
+      "totalMs": 283.59999999962747,
+      "fps": 3.8383997582670495,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0.6025,
+      "segmentationMs": 120.30000000074506,
+      "detectorMs": 151.80000000074506,
+      "detectorBackend": "wasm",
+      "nav": {
+        "mode": "corridor",
+        "status": "CANDIDATE",
+        "direction": "FORWARD",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": []
+        },
+        "text": "前方有连续候选通道"
+      },
+      "objects": 3,
+      "depthBackend": null,
+      "baselineDirection": "FORWARD",
+      "baselineFloorFraction": 0.6025,
+      "device": "SegFormer-B0 · CPU / 1 线程"
+    },
+    "webgpuFast": {
+      "frames": 8,
+      "backend": "webgpu",
+      "direction": "FORWARD",
+      "inferenceMs": 24.399999998509884,
+      "totalMs": 30.5,
+      "fps": 30.64183087005383,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0.595,
+      "segmentationMs": 14.599999999627471,
+      "detectorMs": 9.799999998882413,
+      "detectorBackend": "webgpu",
+      "nav": {
+        "mode": "corridor",
+        "status": "CANDIDATE",
+        "direction": "FORWARD",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": []
+        },
+        "text": "前方有连续候选通道"
+      },
+      "objects": 3,
+      "depthBackend": null,
+      "baselineDirection": "FORWARD",
+      "baselineFloorFraction": 0.595,
+      "device": "SegFormer-B0 · nvidia · lovelace"
+    },
+    "webgpuQuality": {
+      "frames": 8,
+      "backend": "webgpu",
+      "direction": "FORWARD",
+      "inferenceMs": 26.200000002980232,
+      "totalMs": 35.29999999888241,
+      "fps": 27.97975006071362,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0.5543619791666666,
+      "segmentationMs": 17.100000001490116,
+      "detectorMs": 9.100000001490116,
+      "detectorBackend": "webgpu",
+      "nav": {
+        "mode": "corridor",
+        "status": "CANDIDATE",
+        "direction": "FORWARD",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": []
+        },
+        "text": "前方有连续候选通道"
+      },
+      "objects": 2,
+      "depthBackend": null,
+      "baselineDirection": "FORWARD",
+      "baselineFloorFraction": 0.5543619791666666,
+      "device": "SegFormer-B0 · nvidia · lovelace"
+    },
+    "autoFallback": {
+      "frames": 8,
+      "backend": "wasm",
+      "direction": "FORWARD",
+      "inferenceMs": 235.30000000074506,
+      "totalMs": 250.30000000074506,
+      "fps": 3.920073683612484,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0.6294444444444445,
+      "segmentationMs": 108.90000000037253,
+      "detectorMs": 126.40000000037253,
+      "detectorBackend": "wasm",
+      "nav": {
+        "mode": "corridor",
+        "status": "CANDIDATE",
+        "direction": "FORWARD",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": []
+        },
+        "text": "前方有连续候选通道"
+      },
+      "objects": 3,
+      "depthBackend": null,
+      "baselineDirection": "FORWARD",
+      "baselineFloorFraction": 0.6294444444444445,
+      "device": "SegFormer-B0 · CPU / 1 线程"
+    },
+    "camera": {
+      "frames": 8,
+      "backend": "webgpu",
+      "direction": "UNKNOWN",
+      "inferenceMs": 24.09999999962747,
+      "totalMs": 30.90000000037253,
+      "fps": 23.974808907071136,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0,
+      "segmentationMs": 16.59999999962747,
+      "detectorMs": 7.5,
+      "detectorBackend": "webgpu",
+      "nav": {
+        "mode": "free_forward",
+        "status": "STOP",
+        "direction": "UNKNOWN",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": [
+            {
+              "box": [
+                0.2708333333333333,
+                0.5555555555555556,
+                0.75,
+                0.9629629629629629
+              ],
+              "blocking": true,
+              "label": "semantic obstacle",
+              "source": "semantic",
+              "score": 1
+            }
+          ]
+        },
+        "text": "正前方检测到障碍，请留意"
+      },
+      "objects": 0,
+      "depthBackend": null,
+      "baselineDirection": "UNKNOWN",
+      "baselineFloorFraction": 0,
+      "device": "SegFormer-B0 · nvidia · lovelace"
+    }
+  },
+  "requests": [
+    "",
+    "app.mjs?v=web-core-2",
+    "camera-geometry.mjs?v=full-frame-1",
+    "corridor.mjs",
+    "data/route.json",
+    "depth-fusion.mjs?v=depth-1",
+    "experience.css",
+    "experience.mjs",
+    "inference.worker.mjs?v=depth-1",
+    "models/detector-manifest.json",
+    "models/detector.onnx",
+    "models/floor-fast.onnx",
+    "models/floor-quality.onnx",
+    "navigation.mjs",
+    "style.css?v=depth-1",
+    "test-video.mp4",
+    "vendor/ort-wasm-simd-threaded.asyncify.mjs",
+    "vendor/ort-wasm-simd-threaded.asyncify.wasm",
+    "vendor/ort.webgpu.min.mjs"
+  ],
+  "failures": [],
+  "errors": []
+}

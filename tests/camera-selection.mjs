@@ -52,7 +52,7 @@ async function inference(id){
   assert.deepEqual(await page.evaluate(()=>window.floorLabStats.errors),[]);
 }
 try{
-  await page.goto(base,{waitUntil:'networkidle'});await preview('tele');
+  await page.goto(base,{waitUntil:'networkidle'});await page.click('#use-camera');await preview('tele');
   assert.equal(await page.locator('#source-label').textContent(),'后置长焦镜头');
   await page.click('#settings');await page.waitForFunction(()=>document.getElementById('camera-device').options.length===4);
   await page.selectOption('#camera-device','wide');
@@ -68,7 +68,7 @@ try{
   assert.equal(await page.evaluate(()=>localStorage.getItem('floor-lab.camera-device')),'wide');
   const constraints=await page.evaluate(()=>window.cameraCalls.at(-1).constraints.video);
   assert.deepEqual(constraints.deviceId,{exact:'wide'});assert.equal('facingMode' in constraints,false);
-  await page.reload({waitUntil:'networkidle'});await preview('wide');
+  await page.reload({waitUntil:'networkidle'});await page.click('#use-camera');await preview('wide');
   assert.equal(await page.evaluate(()=>window.cameraCalls[0].constraints.video.deviceId.exact),'wide');
   await select('wide','wasm');await preview('wide');await page.click('#start');await inference('wide');
   await select('front');await inference('front');

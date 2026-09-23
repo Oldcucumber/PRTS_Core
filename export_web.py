@@ -19,7 +19,8 @@ class FloorModel(torch.nn.Module):
     def forward(self, pixel_values):
         logits = self.model(pixel_values=pixel_values).logits
         # Return only floor probability and winning class, reducing GPU readback.
-        return logits.softmax(1)[:, 3], logits.argmax(1).to(torch.float32)
+        probabilities = logits.softmax(1)
+        return probabilities[:, 3], logits.argmax(1).to(torch.float32), probabilities.max(1).values
 
 
 def main():
@@ -39,7 +40,7 @@ def main():
         sample = torch.from_numpy(normalized.transpose(2,0,1).copy()[None])
         path = target / f'floor-{name}.onnx'
         torch.onnx.export(model, sample, str(path), input_names=['pixel_values'],
-                          output_names=['floor_probability', 'winning_class'],
+                          output_names=['floor_probability', 'winning_class', 'semantic_confidence'],
                           opset_version=17, dynamo=False)
         onnx.checker.check_model(str(path))
         options = ort.SessionOptions()

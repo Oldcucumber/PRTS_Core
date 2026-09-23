@@ -1,9 +1,11 @@
+import {decodeDetector,avoidDetections,localNavigation,semanticObstacles} from './navigation.mjs';
 import * as ort from './vendor/ort.webgpu.min.mjs';
 import { analyzeFloor } from './corridor.mjs';
 import { unpadPrediction } from './camera-geometry.mjs?v=full-frame-1';
 import { alignDepth, fuseDepth } from './depth-fusion.mjs?v=depth-1';
 
 let session, backend, modelBuffer, config;
+let detector=null,detectorBackend=null,detectorLabels=null;
 let depthSession=null,depthBackend=null,depthBuffer=null;
 ort.env.wasm.wasmPaths = new URL('./vendor/',import.meta.url).href;
 ort.env.wasm.numThreads = self.crossOriginIsolated ? Math.max(1,Math.min(4,navigator.hardwareConcurrency||2)) : 1;
@@ -48,6 +50,15 @@ async function load({mode, profile, depthEnabled=false}) {
     postMessage({type:'status',message:reason ? 'GPU 不可用，正在切换 WASM…' : '正在启动 WASM 推理…'});
     session=await create(backend);
   }
+  postMessage({type:'status',message:'正在加载 YOLO11n 障碍检测…'});
+  const detectorBytes=await (await fetch(new URL('./models/detector.onnx',import.meta.url))).arrayBuffer();
+  detectorLabels=(await (await fetch(new URL('./models/detector-manifest.json',import.meta.url))).json()).labels;
+  async function initDetector(provider){
+    detectorBackend=provider;detector=await ort.InferenceSession.create(detectorBytes,{executionProviders:[provider]});
+    const t=new ort.Tensor('float32',new Float32Array(3*384*640),[1,3,384,640]);let out;
+    try{out=await detector.run({rgb:t});}finally{t.dispose();if(out)Object.values(out).forEach(x=>x.dispose());}
+  }
+  try{await initDetector(backend);}catch(e){if(mode!=='auto'||backend!=='webgpu')throw e;await detector?.release().catch(()=>{});await initDetector('wasm');}
   if(depthEnabled){
     postMessage({type:'status',message:'正在加载深度模型 Depth Anything V2 Small…'});
     const response=await fetch(new URL('./models/depth-small.onnx',import.meta.url));
@@ -60,7 +71,7 @@ async function load({mode, profile, depthEnabled=false}) {
       reason+=" 深度模型回退 WASM。";await createDepth('wasm');
     }
   }
-  postMessage({type:'ready',backend,depthBackend,depthSize:252,depthEnabled,adapterInfo:backend==='webgpu'?adapterInfo:'CPU',reason,threads:ort.env.wasm.numThreads,...config});
+  postMessage({type:'ready',backend,detectorBackend,depthBackend,depthSize:252,depthEnabled,adapterInfo:backend==='webgpu'?adapterInfo:'CPU',reason,threads:ort.env.wasm.numThreads,...config});
 }
 
 async function createDepth(provider){
@@ -87,7 +98,10 @@ async function infer(message) {
     }
     const segmentationMs=performance.now()-started;
     const prob=outputs.floor_probability, classes=outputs.winning_class;
-    const frame=unpadPrediction(prob.data,classes.data,prob.dims[2],prob.dims[1],message.contentRect);
+    const frame=unpadPrediction(outputs.semantic_confidence.data,classes.data,prob.dims[2],prob.dims[1],message.contentRect);
+    const semanticClasses=frame.classes.slice();
+    // ADE20K: floor=3, sidewalk=11, path=52. Road=6 is never a walking corridor.
+    frame.classes=frame.classes.map(x=>[3,11,52].includes(x)?3:0);
     const baseline=analyzeFloor(frame.probability,frame.classes,frame.width,frame.height,message.threshold);
     let result=baseline,depth=null,depthMs=0;
     if(depthSession){
@@ -110,9 +124,18 @@ async function infer(message) {
         depth={heat:fused.heat,excluded:fused.excluded,removedFraction:fused.removedFraction,fit:fused.fit,backend:depthBackend};
       }finally{depthTensor.dispose();if(output)Object.values(output).forEach(t=>t.dispose());}
     }
+    const detectorStart=performance.now();let detOut;
+    const detTensor=new ort.Tensor('float32',message.detectorInput,[1,3,384,640]);let detections;
+    try{detOut=await detector.run({rgb:detTensor});const prediction=Object.values(detOut)[0];detections=decodeDetector(prediction.data,prediction.dims,message.detectorRect,detectorLabels);}
+    finally{detTensor.dispose();if(detOut)Object.values(detOut).forEach(x=>x.dispose());}
+    const detectorMs=performance.now()-detectorStart;
+    const constrained={...frame,classes:frame.classes.map((x,i)=>result.region[i]?x:0)};
+    result=avoidDetections(constrained,result,detections,message.threshold);
+    const fixed=semanticObstacles(semanticClasses,frame.probability,frame.width,frame.height,message.halfAngle||15);
+    const nav=localNavigation(result,baseline,[...detections,...fixed],message.halfAngle||15);
     const transfers=new Set([result.region.buffer]);
     if(depth){transfers.add(baseline.region.buffer);transfers.add(depth.heat.buffer);transfers.add(depth.excluded.buffer);}
-    postMessage({type:'result',id:message.id,inferenceMs:segmentationMs+depthMs,segmentationMs,depthMs,totalMs:performance.now()-started,backend,...result,baseline:depth?baseline:null,depth},[...transfers]);
+    postMessage({type:'result',id:message.id,inferenceMs:segmentationMs+depthMs+detectorMs,segmentationMs,depthMs,detectorMs,detectorBackend,detections,nav,semanticClasses,totalMs:performance.now()-started,backend,...result,baseline:depth?baseline:null,depth},[...transfers]);
   } finally { tensor.dispose(); if(outputs) Object.values(outputs).forEach(t=>t.dispose()); }
 }
 

@@ -27,7 +27,7 @@ async function configure({source,backend,profile,file}={}){
 }
 async function stop(){await page.click('#start');assert.equal(await page.locator('#start-label').textContent(),'开始');}
 try{
-  await page.goto('http://localhost:8080');
+  await page.goto('http://localhost:8080');await page.click('#use-camera');
   await page.waitForFunction(()=>document.querySelector('video').srcObject?.active);
   assert.equal(await page.locator('main button:visible').count(),2);
   assert.equal(await page.locator('#start-label').textContent(),'开始');
@@ -84,7 +84,7 @@ try{
   const denied=await browser.newContext({permissions:[]});
   const deniedPage=await denied.newPage();
   await deniedPage.addInitScript(()=>Object.defineProperty(navigator.mediaDevices,'getUserMedia',{value:async()=>{throw new DOMException('Denied','NotAllowedError');}}));
-  await deniedPage.goto('http://localhost:8080');
+  await deniedPage.goto('http://localhost:8080');await deniedPage.click('#use-camera');
   await deniedPage.waitForFunction(()=>document.getElementById('run-state').textContent==='错误');
   assert.match(await deniedPage.locator('#status').textContent(),/权限被拒绝/);
   await deniedPage.click('#settings');await deniedPage.selectOption('#input-source','sample');await deniedPage.click('.apply');

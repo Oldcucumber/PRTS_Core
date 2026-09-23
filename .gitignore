@@ -21,3 +21,5 @@ apple/PRTSCore/.build/
 .pytest_cache/
 .DS_Store
 /Vendor/
+
+.playwright-cli/
