@@ -52,7 +52,7 @@ async function inference(id){
   assert.deepEqual(await page.evaluate(()=>window.floorLabStats.errors),[]);
 }
 try{
-  await page.goto(base,{waitUntil:'networkidle'});await page.click('#use-camera');await preview('tele');
+  await page.goto(base,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.prtsSession);await page.evaluate(()=>{document.getElementById('visual-only').checked=true;prtsSession.speech.setMuted(true);return prtsControls.source('camera');});await preview('tele');
   assert.equal(await page.locator('#source-label').textContent(),'后置长焦镜头');
   await page.click('#settings');await page.waitForFunction(()=>document.getElementById('camera-device').options.length===4);
   await page.selectOption('#camera-device','wide');
@@ -68,11 +68,11 @@ try{
   assert.equal(await page.evaluate(()=>localStorage.getItem('floor-lab.camera-device')),'wide');
   const constraints=await page.evaluate(()=>window.cameraCalls.at(-1).constraints.video);
   assert.deepEqual(constraints.deviceId,{exact:'wide'});assert.equal('facingMode' in constraints,false);
-  await page.reload({waitUntil:'networkidle'});await page.click('#use-camera');await preview('wide');
+  await page.reload({waitUntil:'networkidle'});await page.waitForFunction(()=>window.prtsSession);await page.evaluate(()=>{document.getElementById('visual-only').checked=true;prtsSession.speech.setMuted(true);return prtsControls.source('camera');});await preview('wide');
   assert.equal(await page.evaluate(()=>window.cameraCalls[0].constraints.video.deviceId.exact),'wide');
   await select('wide','wasm');await preview('wide');await page.click('#start');await inference('wide');
   await select('front');await inference('front');
-  assert.equal(await page.locator('#start-label').textContent(),'停止');
+  assert.equal(await page.locator('#start-label').textContent(),'结束');
   assert.equal(await page.locator('#source-label').textContent(),'前置摄像头');
   assert.ok(await page.evaluate(()=>window.cameraCalls.every(c=>c.oldLive===0)));
   await page.click('#start');

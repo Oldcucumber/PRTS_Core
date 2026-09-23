@@ -18,7 +18,7 @@ try{
     assert.equal(data.length,asset.bytes);
     assert.equal(createHash('sha256').update(data).digest('hex'),asset.sha256);
   }
-  const context=await browser.newContext({permissions:['camera'],viewport:{width:390,height:844}});
+  const context=await browser.newContext({permissions:['camera','microphone'],viewport:{width:390,height:844}});
   await context.route('**/*',route=>{
     const url=route.request().url();
     if(/^https?:/.test(url)&&!url.startsWith(base)){
@@ -34,11 +34,14 @@ try{
   const response=await page.goto(base);
   assert.equal(response.headers()['cross-origin-opener-policy'],undefined);
   assert.equal(response.headers()['cross-origin-embedder-policy'],undefined);
+  await page.waitForFunction(()=>window.prtsSession);
   results.crossOriginIsolated=await page.evaluate(()=>crossOriginIsolated);
-  assert.equal(results.crossOriginIsolated,false);
-  await page.waitForFunction(()=>document.querySelector('video').videoWidth>0);
+  assert.equal(results.crossOriginIsolated,true);
+  await page.evaluate(()=>prtsSession.speech.setMuted(true));
+  await page.waitForFunction(()=>window.prtsControls);
+
   assert.equal(await page.evaluate(()=>document.querySelector('video').srcObject),null);
-  async function configure(backend,profile='fast',source='sample'){
+  async function configure(backend,profile='fast',source='camera'){
     await page.click('#settings');
     await page.selectOption('#input-source',source);
     await page.selectOption('#backend',backend);
@@ -56,15 +59,9 @@ try{
     await page.click('#start');
   }
   await configure('wasm');await run('wasmSingleThread','wasm');
-  assert.match(results.cases.wasmSingleThread.device,/1 线程/);
+  assert.match(results.cases.wasmSingleThread.device,/CPU/);
   await configure('webgpu');await run('webgpuFast','webgpu');
   await configure('webgpu','quality');await run('webgpuQuality','webgpu');
-  await page.route('**/inference.worker.mjs*',async route=>{
-    const response=await route.fetch();
-    await route.fulfill({response,body:`Object.defineProperty(navigator,'gpu',{value:undefined});\n${await response.text()}`});
-  });
-  await configure('auto');await run('autoFallback','wasm');
-  await page.unroute('**/inference.worker.mjs*');
   await configure('auto','fast','camera');
   await page.waitForFunction(()=>document.querySelector('video').srcObject?.active);
   await page.evaluate(()=>{window.trackForTest=document.querySelector('video').srcObject.getVideoTracks()[0];});
@@ -76,11 +73,15 @@ try{
   await page.screenshot({path:'outputs/static/github-pages-mobile.png'});
   await page.click('#start');
   assert.deepEqual(errors,[]);assert.deepEqual(failures,[]);
-  assert.ok(requests.has('vendor/ort-wasm-simd-threaded.asyncify.wasm'));
+  assert.ok([...requests].some(x=>x.includes('ort-wasm-simd-threaded')&&x.endsWith('.wasm')));
   assert.ok(requests.has('models/floor-fast.onnx'));
   assert.ok(requests.has('models/floor-quality.onnx'));
-  assert.ok(requests.has('test-video.mp4'));
+  assert.ok(![...requests].some(x=>x.includes('test-video.mp4')||x.includes('street.mp4')));
+  const fallbackContext=await browser.newContext({serviceWorkers:'block',permissions:['camera'],viewport:{width:390,height:844}});
+  await fallbackContext.route('**/inference.worker.mjs*',async route=>{const response=await route.fetch();await route.fulfill({response,body:"Object.defineProperty(navigator,'gpu',{value:undefined});\n"+await response.text()});});
+  const fallback=await fallbackContext.newPage();await fallback.goto(base);await fallback.waitForFunction(()=>window.prtsSession);await fallback.evaluate(()=>{document.getElementById('visual-only').checked=true;prtsSession.speech.setMuted(true);});await fallback.click('#start');await fallback.waitForFunction(()=>floorLabStats.frames>=3||floorLabStats.errors.length,null,{timeout:120000});
+  results.cases.nonIsolatedFallback=await fallback.evaluate(()=>({backend:floorLabStats.backend,frames:floorLabStats.frames,errors:floorLabStats.errors,isolated:crossOriginIsolated}));assert.equal(results.cases.nonIsolatedFallback.backend,'wasm');assert.deepEqual(results.cases.nonIsolatedFallback.errors,[]);await fallbackContext.close();
   results.requests=[...requests].sort();results.failures=failures;results.errors=errors;
   await writeFile('outputs/static/validation.json',JSON.stringify(results,null,2));
-  console.log('Static Pages checks passed: nested path, no isolation headers, WASM single thread, WebGPU, both models, fallback, camera, no external requests.');
+  console.log('Static Pages checks passed: nested path, header-only SW isolation, WebGPU/WASM, non-isolated fallback, camera, no external requests.');
 }finally{await browser.close();await new Promise(resolve=>server.close(resolve));}

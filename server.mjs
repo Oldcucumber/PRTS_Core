@@ -17,8 +17,7 @@ function handler(req, res) {
     if (!['GET','HEAD'].includes(req.method)) { res.writeHead(405); res.end(); return; }
     const path = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
     let file;
-    if (path === '/test-video.mp4') file = resolve(root, 'VID20260919182406.mp4');
-    else {
+    {
       const base = path.startsWith('/vendor/') ? vendor : web;
       const relative = path.startsWith('/vendor/') ? path.slice(8) : path === '/' ? 'index.html' : path.slice(1);
       file = resolve(base, relative);

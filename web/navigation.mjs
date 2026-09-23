@@ -30,6 +30,7 @@ export function avoidDetections(frame,baseline,detections,threshold){
 }
 export function localNavigation(result,baseline,detections,halfAngle=15){
  const scan=forwardObstacles(detections,halfAngle);
+ if(scan.obstacles.length)return {mode:result.target||baseline.target?'corridor':'free_forward',status:'STOP',direction:'UNKNOWN',scan,text:'正前方检测到障碍'};
  if(result.target)return {mode:'corridor',status:'CANDIDATE',direction:result.direction,scan,text:({LEFT:'候选通道向左延伸',RIGHT:'候选通道向右延伸',FORWARD:'前方有连续候选通道'})[result.direction]};
  if(baseline.target&&scan.obstacles.length)return {mode:'corridor',status:'STOP',direction:'UNKNOWN',scan,text:'前方候选通道被障碍占用'};
  return {mode:'free_forward',status:scan.obstacles.length?'STOP':'FREE',direction:'UNKNOWN',scan,text:scan.obstacles.length?'正前方检测到障碍，请留意':'自由前进模式'};

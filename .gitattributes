@@ -1,1 +1,6 @@
 *.sh text eol=lf
+
+*.bin binary
+*.wasm binary
+*.onnx binary
+web/speech/*.js text eol=lf

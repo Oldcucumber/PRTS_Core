@@ -10,7 +10,7 @@ const dialog=$('settings-dialog');
 const cameraPreferenceKey='floor-lab.camera-device';
 function savedCamera(){try{return localStorage.getItem(cameraPreferenceKey)||'';}catch{return '';}}
 function saveCamera(deviceId){try{if(deviceId)localStorage.setItem(cameraPreferenceKey,deviceId);else localStorage.removeItem(cameraPreferenceKey);}catch{}}
-let options={source:'sample',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,file:null,depthEnabled:false,depthView:'overlay'};
+let options={source:'camera',cameraId:savedCamera(),backend:'auto',profile:'fast',threshold:.55,visualOnly:false,file:null,depthEnabled:false,depthView:'overlay'};
 let cameraDevices=[],cameraRefresh=0,activeCameraId='',activeCameraLabel='';
 let draftFile=null;
 let worker=null,stream=null,objectURL=null,generation=0,frameId=0,running=false,busy=false;
@@ -55,7 +55,7 @@ async function refreshCameras(){
 function updateConfig(){
   $('pipeline').textContent=options.depthEnabled?'分割＋检测＋相对深度':'分割＋YOLO 检测';
   if(!stats.ready)$('depth-metric').textContent=options.depthEnabled?'深度：待启动':'深度：关闭';
-  $('source-label').textContent=options.source==='camera'?cameraName():options.source==='sample'?'室内示例 · 真实短片':options.source==='street'?'街道示例 · SANPO / CC BY 4.0':options.file?.name||'本地视频';
+  $('source-label').textContent=options.source==='camera'?cameraName():options.file?.name||'本地视频';
   $('source-label').title=$('source-label').textContent;
   $('config-summary').textContent=`${options.profile==='fast'?'192 × 320':'288 × 512'} · 阈值 ${options.threshold.toFixed(2)}`;
   if(!stats.ready){
@@ -64,11 +64,12 @@ function updateConfig(){
   }
 }
 function runButton(active){
-  $('start-label').textContent=active?'停止':'开始';
+  $('start-label').textContent=active?'结束':'开始';
   $('start').classList.toggle('active',active);
   $('start-icon').innerHTML=active?'<rect x="5" y="5" width="10" height="10" rx="1"/>':'<path d="M5 3.5v13L16 10z"/>';
 }
 function stop(message='已停止'){
+  window.dispatchEvent(new CustomEvent('prts-stop',{detail:{message}}));
   generation++;running=false;busy=false;clearTimeout(timer);
   worker?.terminate();worker=null;
   stream?.getTracks().forEach(t=>t.stop());stream=null;
@@ -118,7 +119,7 @@ function ensureInput(){
       }else if(options.source==='file'){
         if(!options.file)throw new Error('未选择视频文件');
         objectURL=URL.createObjectURL(options.file);video.src=objectURL;
-      }else video.src=new URL(options.source==='street'?'./data/street.mp4':'./test-video.mp4',import.meta.url).href;
+      }else throw new Error('不支持的输入源');
       video.loop=true;
       await video.play();
       if(token!==generation)return false;
@@ -147,6 +148,7 @@ async function start(){
       if(data.type==='status')status(data.message);
       if(data.type==='ready'){
         config=data;stats.ready=true;stats.backend=data.backend;
+        window.dispatchEvent(new CustomEvent('prts-ready'));
         $('backend-badge').textContent=data.backend==='webgpu'?'WebGPU · GPU':'WASM · CPU';
         $('device').textContent=data.backend==='wasm'?`SegFormer-B0 · CPU / ${data.threads} 线程`:`SegFormer-B0 · ${data.adapterInfo||'GPU'}`;
         $('run-state').textContent='运行中';
@@ -162,7 +164,8 @@ async function start(){
         // Discard results captured before a source / viewport geometry change.
         if(capturedViewRevision!==viewRevision){schedule();return;}
         render(data);
-        window.dispatchEvent(new CustomEvent('prts-perception',{detail:{...data,ageMs:performance.now()-capturedAt}}));
+        if(!document.getElementById('overlay-enabled').checked){canvas.style.display='none';video.style.visibility='visible';}
+        window.dispatchEvent(new CustomEvent('prts-perception',{detail:{...data,session:generation,observedAt:capturedAt,ageMs:performance.now()-capturedAt}}));
         const now=performance.now();
         if(lastResultAt){const value=1000/(now-lastResultAt);fps=fps?fps*.75+value*.25:value;}
         lastResultAt=now;
@@ -277,9 +280,9 @@ $('file').onchange=e=>{draftFile=e.target.files[0]||draftFile;$('file-name').tex
 $('threshold').oninput=()=>{$('threshold-value').textContent=Number($('threshold').value).toFixed(2);};
 $('settings-form').onsubmit=async event=>{
   event.preventDefault();
-  const next={source:$('input-source').value,cameraId:$('camera-device').value,backend:$('backend').value,profile:$('profile').value,threshold:Number($('threshold').value),file:draftFile,depthEnabled:$('depth-enabled').checked,depthView:$('depth-view').value};
+  const next={visualOnly:$('visual-only').checked,source:$('input-source').value,cameraId:$('camera-device').value,backend:$('backend').value,profile:$('profile').value,threshold:Number($('threshold').value),file:draftFile,depthEnabled:$('depth-enabled').checked,depthView:$('depth-view').value};
   if(next.source==='file'&&!next.file){$('settings-error').textContent='请选择视频文件';return;}
-  const restart=next.depthEnabled!==options.depthEnabled||next.source!==options.source||next.backend!==options.backend||next.profile!==options.profile||(next.source==='file'&&next.file!==options.file)||(next.source==='camera'&&next.cameraId!==options.cameraId);
+  const restart=next.visualOnly!==options.visualOnly||next.depthEnabled!==options.depthEnabled||next.source!==options.source||next.backend!==options.backend||next.profile!==options.profile||(next.source==='file'&&next.file!==options.file)||(next.source==='camera'&&next.cameraId!==options.cameraId);
   const wasRunning=running;
   dialog.close();
   if(restart)stop('配置已更新');
@@ -303,4 +306,4 @@ window.addEventListener('pagehide',()=>stop());
 $('compatibility').textContent=!isSecureContext?'非安全连接：摄像头与 WebGPU 需要 HTTPS。':navigator.gpu?'WebGPU API 可用；AUTO 模式在 GPU 不可用时回退 WASM。':'WebGPU API 不可用；AUTO 模式使用 WASM CPU。';
 window.prtsControls={start,stop,async source(name){if(running||inputReady)stop();options.source=name;updateConfig();await ensureInput();},isRunning:()=>running};
 updateConfig();
-ensureInput();
+$('preview-state').textContent='点击开始连接摄像头';

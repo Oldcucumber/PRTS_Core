@@ -7,13 +7,11 @@ import {createHash} from 'node:crypto';
 const root=await realpath(fileURLToPath(new URL('..',import.meta.url)));
 const output=resolve(root,'dist');
 const entries=[
-  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs','depth-fusion.mjs','navigation.mjs','experience.mjs','experience.css'].map(name=>[`web/${name}`,name]),
+  ...(await readdir(join(root,'web/speech'))).map(name=>['web/speech/'+name,'speech/'+name]),
+  ...['index.html','style.css','app.mjs','inference.worker.mjs','corridor.mjs','camera-geometry.mjs','depth-fusion.mjs','navigation.mjs','core-session.mjs','speech-output.mjs','audio-input.mjs','session-ui.mjs','asr.worker.js','pcm-worklet.js','bootstrap.mjs','isolation-sw.js'].map(name=>[`web/${name}`,name]),
   ...['fast','quality'].map(name=>[`web/models/floor-${name}.onnx`,`models/floor-${name}.onnx`]),
   ['web/models/detector.onnx','models/detector.onnx'],
   ['web/models/detector-manifest.json','models/detector-manifest.json'],
-  ['web/data/route.json','data/route.json'],
-  ['web/data/street.mp4','data/street.mp4'],
-  ['web/data/street-source.json','data/street-source.json'],
   ['licenses/stage2/Ultralytics-AGPL-3.0.txt','licenses/Ultralytics-AGPL-3.0.txt'],
   ['web/models/depth-small.onnx','models/depth-small.onnx'],
   // Non-isolated hosts select Asyncify; isolated development uses JSEP.
@@ -46,10 +44,10 @@ for(const [source,target] of entries){
 await writeFile(join(output,'.nojekyll'),'');
 await writeFile(join(output,'DEPLOY.txt'),[
   'Deploy the CONTENTS of this directory to GitHub Pages or any HTTPS static host.',
-  'All models, JavaScript, WASM and the test video are included. No CDN or backend is used.',
+  'All models, JavaScript, WASM and speech assets are included. No CDN or backend is used.',
   'The entry point is index.html. Root and repository-subdirectory URLs are both supported.',
   'Use HTTPS for camera/WebGPU. file:// is not supported by module workers and camera APIs.',
-  'GitHub Pages does not set COOP/COEP headers: WASM uses one CPU thread; WebGPU remains available.',
+  'Pages uses a same-origin header-only service worker to enable isolation required by local ASR. Unsupported browsers expose visual-only testing.',
 ].join('\n')+'\n');
 const manifest=[];
 async function inventory(dir){

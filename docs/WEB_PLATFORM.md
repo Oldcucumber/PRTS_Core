@@ -1,57 +1,63 @@
-﻿# PRTS Core Web 小脑体验平台
+# PRTS Core Web 实时导航测试
 
-更新：2026-09-23。发布目标为 main 分支的 GitHub Pages：https://oldcucumber.github.io/PRTS_Core/。
+更新：2026-09-24（本次测试跨 23／24 日）。入口：https://oldcucumber.github.io/PRTS_Core/
 
-## 当前范围
+## 使用
 
-| 功能 | Web 实现 | 边界 |
-|---|---|---|
-| 相机／视频输入 | 摄像头选择、室内短片、SANPO 街道片段、本地视频 | 相机需 HTTPS 与用户授权；帧不上传 |
-| 地面分割 | SegFormer-B0 ADE20K，192×320 或 288×512 | 轻量模型，不是桌面 Mask2Former；floor / sidewalk / path 为候选，road 不计入 |
-| 目标检测 | YOLO11n COCO，384×640，等比留边、类别内 NMS | 可标注车辆和交通灯类别，但不识别线路语义或灯色通行许可 |
-| 固定实体 | 分割覆盖层与前向高置信度连通区域 | 低置信度或未识别区域不能当作安全区域 |
-| 局部路径 | 近端连通区域中心线，检测框从候选区域中排除 | 图像坐标启发式，不提供人体净空、米制避障或世界空间 AR |
-| 自由前进 | 无连续通道时进入，只提示一次；前方障碍出现提醒 | 半角可调 10–30°，默认 ±15°，假设水平视场 60° |
-| 相对深度 | Depth Anything V2 Small，可选叠加或左右对比 | 非米制；不等同 LiDAR |
-| 声音 | 系统 TTS、程序生成提示音、停止播放 | 默认关闭；紧急障碍提示优先 |
-| 控制指令 | 文字开始／停止，可选浏览器语音识别 | 不是 SenseVoice；浏览器识别可能联网，不支持时用文字 |
-| 路线 | 内置真实高德响应、确认目的地、进度回放、转弯／到达、JSON 导入 | 位置模拟，不对应示例视频；不提供真实定位跟随 |
-| 在线地图 | 自带 Web 服务 Key 搜索 POI、选点查询步行路线 | 需网络、配额及浏览器可访问性；不内置临时 Key |
-| 事件 | 实际导航／控制／路线事件，JSON 下载 | 最多 500 条；路线事件明确 simulated |
-| 大脑 | Feature 卡片及未开放提示 | 无视觉语言模型、无问答／等公交／叫号识别，不伪造成功结果 |
+页面默认不采集。点击「开始」后允许摄像头和麦克风，初始化本地模型并进行声音检查。首次打开会自动刷新一次以启用浏览器隔离；语音资源约 242 MB，所有静态资源合计约 443 MiB。未加载完成时会显示状态，不伪装成可用。
 
-## 模型与运行
+主画面仅显示实时摄像头、感知覆盖层、导航状态、最新提示和设备状态。点击「暂停」停止导航判断与播报，但保留麦克风以接收「继续导航」。点击「结束」释放视频、音频和推理 Worker。静音不停止感知。
 
-ONNX Runtime Web 1.30.0 在 Worker 内执行。自动模式优先 WebGPU，启动失败回退 WASM；可强制指定。Pages 没有跨源隔离头，WASM 使用单线程。分割、YOLO 与可选深度处理同一采集帧，保持完整视野并显示真实端到端耗时；超过 2 秒的结果仅展示，不播报即时导航。
+本地口令：**暂停导航／停止导航、继续导航／开始导航、静音、恢复播报**。只接受完整短句，普通谈话中包含这些词不会直接执行。VAD 结束短句后由 SenseVoice 识别，连续采集不等于逐字流式识别。播报期间与结束后 300 ms 内的音频不送入识别；页面明确显示这一状态。此版不支持在播报中用语音打断，按钮始终可用。
 
-分割输出新增 semantic_confidence，既有 floor_probability、winning_class 和学习权重保留。scripts/extend_web_semantics.py 可为旧导出追加此输出；export_web.py 新导出包含此输出。YOLO 导出与桌面检测权重一致，但浏览器路径算法不是桌面算法逐项移植。网络缓存和设备算力影响首次启动及帧率。
+镜头、推理后端、分辨率、深度辅助、覆盖层、前方监测角度、仅视觉调试、本地文件和日志导出位于二级设置。没有内置视频、路线演示、功能宣传卡或大脑调用。
 
-模型、WASM、样例和脚本从同站点加载；可选浏览器语音识别、在线高德查询是明确的联网功能。首次加载仍需下载资源，不声称安装前完全离线可用。
+## 运行链路
 
-## 路线导入
+- 摄像头 → 最新帧采集 → 视觉 Worker（SegFormer-B0 + YOLO11n，同帧处理）→ NavigationSession → SpeechOutput → 设备本地中文 TTS。
+- 麦克风 → AudioWorklet → 单声道 16 kHz PCM（100 ms 包）→ 独立 ASR Worker（Silero VAD + SenseVoice Small INT8 / sherpa-onnx v1.13.2）→ 限定口令 → 导航状态。
+- 视觉忙时不积压待推理视频。音频一次提交一包，有界保留最多约 2 秒；解码积压时丢弃旧音频并重置 VAD，记录 audio_drop，不执行过期口令。
+- 无连续通道稳定 1 秒后进入自由前进，只播报一次进入。前方障碍优先于路径方向；首次出现即提示，持续存在不重复，连续 1 秒消失后重新允许提醒。
+- 普通方向稳定 500 ms 才提示，至少间隔 4 秒。障碍可打断方向提示；尚未播放的方向只保留最新一条。观测超过 2 秒不用于播报，连续失去新鲜结果会提示一次感知中断。
+- 用户切镜头、结束或切入后台会取消旧会话及声音。没有本地中文音色时显示语音不可用；没有麦克风或隔离支持时明确显示语音输入不可用，可显式切换仅视觉调试。
 
-坐标必须为 GCJ02；每个步骤有非空 points，总计至少两个不同的点。浏览器仅绘制无底图路线示意。
+Web 的模型与桌面 Mask2Former 不同，不宣称效果等价。地面通道、目标框和前方区域均为图像坐标；无米制测距、身体净空或世界空间 AR。前向默认半角 15°，用水平视场 60° 估算。大脑、地图和环境音语义识别不在本轮范围。
 
-```json
-{"destination":{"name":"示例目的地"},"steps":[{"instruction":"沿路线前进","points":[{"longitude":114.39,"latitude":30.43,"crs":"GCJ02"},{"longitude":114.391,"latitude":30.431,"crs":"GCJ02"}]}]}
-```
+## 核心接口
 
-## 开发与部署
+页面由 bootstrap 初始化，app 负责视频适配；core-session、audio-input、speech-output 独立处理决策与声音，session-ui 只连接状态、按钮和适配器。
 
-```powershell
+视频输入具有 observedAt（performance.now 毫秒）、ageMs 与即时感知结果；摄像头适配器用自身会话代数拒绝重启前返回的结果。PCM 包具有 observedAt、epoch、Float32Array samples，16000 Hz 单声道；ASR epoch 用于取消播报前或重置前的口令。
+
+核心事件包含 type、session、sequence、emitted_ms。speech_request 包含 text、priority、replace_group、observed_ms、expires_ms；与 Python 核心的同名概念一致，但 Python 的时间单位是秒，此 Web 接口显式使用毫秒，不能原样交换。speech_cancel 清空待播与当前声音。播放端回传 playback_start / playback_end / playback_cancel / playback_error；导出的 trace 区分决策和真实播放回调。scene 仅保留最新观测，其他事件最多保留 1000 条。
+
+当前优先级：前向障碍 100、感知中断 90、普通导航 40、启动声音 20。导航请求的有效期为来源观测后 2 秒；播放异常超过 10 秒取消并报告错误。
+
+## 本地运行与回归
+
+~~~powershell
 npm ci
 npm test
 npm run build
 npm run preview
-# 完整浏览器回归首次需要安装浏览器
+# 首次使用浏览器测试
 npx playwright install chromium
 npm run test:static
-```
+npm run test:camera
+npm run test:camera-selection
+# Windows 中文本地音色 + ffmpeg；仅生成合成口令及既有录像的测试输入
+npm run test:fixtures
+npm run test:session
+# 耐久测试
+$env:SESSION_SECONDS='600'
+$env:CAMERA_FIXTURE='outputs/asr/moving-camera.y4m'
+node tests/session-browser.mjs
+~~~
 
-build 清理并重建本仓库 dist，输出独立静态站点。main 推送触发现有 Pages 工作流，先运行单元测试，再构建和部署。仓库子目录访问纳入回归测试；截图和运行中间数据放在 outputs。
+测试素材位于 outputs，不复制到 dist。可为 prepare-session-fixtures.mjs 传入自己的录像路径。源码保留历史录像，但发布页面不再提供它。
 
-## 验证与限制
+## 部署和验证边界
 
-20 项 JavaScript 单元测试覆盖原地面／深度逻辑，以及前方扇区、单次进入播报、障碍重现、检测 NMS、语义障碍与路径排除。已在真实 Chromium 中实际运行 WebGPU、WASM 和深度对比，验证文字停止、未开放大脑请求、路线确认与到达、事件导出和 390px 手机视口无水平溢出。手机视口测试使用桌面浏览器，不是 iPhone 真机性能。
+GitHub Pages 不提供自定义响应头；同源 isolation-sw 仅给响应附加 COOP/COEP/CORP，不缓存、不代理第三方内容。首次受控刷新后启用 SharedArrayBuffer。启动失败会保留视觉调试入口，不改用网络 ASR。构建包含所有模型和运行时，运行不向外部发送视频或音频；下载完成后的当前会话可断网继续，不承诺离线重新打开页面。
 
-语音接口可用性和 TTS 音色因浏览器系统而异。真实摄像头画质、弱光、小障碍、手机持续发热仍需现场评估。高德查询提供接口与错误反馈，未使用访客 Key 进行实地路线验收。来源和许可见 THIRD_PARTY_NOTICES.md。
+验证报告位于 docs/validation/20260923-realtime。自动测试将录像帧和本地合成语句通过浏览器采集 API 输入，运行真实视觉和语音模型、本地 TTS，并检查控制状态和轨道释放；不是现场盲人行走测试。播放回调证明浏览器已开始／结束播放，不证明扬声器在物理空间中的可听度。当前机器没有可用实体摄像头，iPhone/Safari 真机、室外噪声、不同说话人和现场障碍漏报率仍待验证。

@@ -1,0 +1,50 @@
+{
+  "release": "v1.13.2",
+  "model": "SenseVoice Small INT8 + Silero VAD",
+  "bytes": 240193589,
+  "chunks": [
+    {
+      "name": "sense-voice-0.bin",
+      "bytes": 62914560,
+      "sha256": "1d8b6020e7096885475e2baa08b012d15289f0c2d303a511247a99321da8f2e8"
+    },
+    {
+      "name": "sense-voice-1.bin",
+      "bytes": 62914560,
+      "sha256": "dc1f88a5962c613443615eb8581c92b29d28f429ea3dd2c3d0a3313f1eeb5bd7"
+    },
+    {
+      "name": "sense-voice-2.bin",
+      "bytes": 62914560,
+      "sha256": "be3a23bb2a17d3931655258f7f939f470a75a18c40600af9b6ced2bbcd577119"
+    },
+    {
+      "name": "sense-voice-3.bin",
+      "bytes": 51449909,
+      "sha256": "e373c17c295954294f04dfc68076203bb63e31d35db1a67d7be4a1ac09c31604"
+    }
+  ],
+  "source": "https://github.com/k2-fsa/sherpa-onnx/releases/download/v1.13.2/sherpa-onnx-wasm-simd-1.13.2-vad-asr-zh_en_ja_ko_cantonese-sense_voice_small.tar.bz2",
+  "runtimeFiles": [
+    {
+      "name": "sherpa-onnx-asr.js",
+      "bytes": 53867,
+      "sha256": "d51ae8e8b756ee5e53423ffada0c9702973f154f561aca7984fe0b12f4060178"
+    },
+    {
+      "name": "sherpa-onnx-vad.js",
+      "bytes": 7772,
+      "sha256": "893f01168d529add8318c0a6055cf725e788585fda9b81722564a8c3c3f60e34"
+    },
+    {
+      "name": "sherpa-onnx-wasm-main-vad-asr.js",
+      "bytes": 116698,
+      "sha256": "f4b0e1ec27706d971f31e7749f2f9be15c64a2604f864c08b42f2c0d5f2a8fd9"
+    },
+    {
+      "name": "sherpa-onnx-wasm-main-vad-asr.wasm",
+      "bytes": 12898602,
+      "sha256": "a1f3fb15701fad8c556af45d785ddd17dcfe8e25272aa1a02ba0369c9f2ce828"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "passed": [
+    "stop while camera/microphone permission pending",
+    "late tracks released",
+    "microphone denial is explicit",
+    "visual-only mode applies immediately",
+    "background event releases tracks and stops session"
+  ],
+  "errors": []
+}

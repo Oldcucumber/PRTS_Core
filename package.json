@@ -12,8 +12,14 @@
     "test:camera": "npm run build && node tests/camera.mjs",
     "test:camera-selection": "npm run build && node tests/camera-selection.mjs",
     "test:depth": "npm run build && node tests/depth.mjs",
-    "test:depth-comparison": "npm run build && node tests/depth-comparison.mjs"
+    "test:depth-comparison": "npm run build && node tests/depth-comparison.mjs",
+    "test:session": "npm run build && node tests/session-browser.mjs",
+    "test:fixtures": "node scripts/prepare-session-fixtures.mjs"
   },
-  "dependencies": { "onnxruntime-web": "1.30.0" },
-  "devDependencies": { "playwright": "1.58.2" }
+  "dependencies": {
+    "onnxruntime-web": "1.30.0"
+  },
+  "devDependencies": {
+    "playwright": "1.58.2"
+  }
 }

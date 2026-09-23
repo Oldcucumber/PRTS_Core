@@ -4,51 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#080b0e">
-  <title>PRTS Core · 小脑实验室</title>
+  <title>PRTS Core · 导航测试</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='10' fill='%230b1118'/%3E%3Ccircle cx='20' cy='20' r='10' fill='none' stroke='%239fd0ff' stroke-width='3'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="./style.css?v=depth-1">
-  <link rel="stylesheet" href="./experience.css">
 </head>
 <body>
-<header class="site-header"><a class="wordmark" href="./"><span class="brand-mark">P</span>PRTS <span>CORE</span></a><nav aria-label="平台导航"><a href="#workspace">实时感知</a><a href="#route-section">路线实验</a><a href="#features">功能边界</a><a href="https://github.com/Oldcucumber/PRTS_Core" target="_blank" rel="noreferrer">GitHub ↗</a></nav><span class="local-pill"><i></i> 浏览器本地推理</span></header>
-<section class="intro"><div><p class="eyebrow">PERCEPTION / NAVIGATION / INTERACTION</p><h1>看见脚下，<span>理解前方。</span></h1><p>PRTS 小脑实验室 · 用真实视频体验地面感知、障碍检测与导航交互。</p></div><div class="intro-note"><b>WEB PREVIEW / 02</b><span>无需部署后端，打开即测。<br>大脑能力将在后续版本接入。</span></div></section>
-<div id="workspace" class="workspace"><section class="visual-column"><div class="section-top"><h2><i></i>实时感知</h2><span>绿色 · 候选通道　紫色 · 实体区域　橙色 · 障碍</span></div>  <main class="camera-view" aria-label="摄像头主界面">
+  <main class="camera-view" aria-label="摄像头主界面">
     <video id="source" muted playsinline preload="auto" aria-label="输入预览"></video>
     <canvas id="result" aria-label="分割结果与候选方向"></canvas>
     <div id="empty" class="empty">
       <svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" aria-hidden="true"><path d="M4 6h4l2-2h4l2 2h4v14H4z"/><circle cx="12" cy="12" r="4"/></svg>
-      <span id="preview-state">正在连接摄像头</span>
+      <span id="preview-state">点击开始连接摄像头</span>
     </div>
     <section class="hud" aria-label="性能指标与当前配置">
       <div class="hud-heading"><span class="state"><i id="status-dot"></i><span id="run-state">待机</span></span><span id="backend-badge">AUTO</span></div>
-      <div class="metrics">
+      <div class="metrics" hidden>
         <div><span>FPS</span><strong id="fps">—</strong></div>
         <div><span>推理 <small>ms</small></span><strong id="latency">—</strong></div>
         <div><span>总耗时 <small>ms</small></span><strong id="total">—</strong></div>
         <div><span>帧数</span><strong id="frames">0</strong></div>
       </div>
       <div class="configuration"><span id="source-label">摄像头 · 自动</span><span id="config-summary">192 × 320 · 阈值 0.55</span></div>
-      <div class="configuration secondary"><span id="device">SegFormer-B0 · AUTO</span><span>方向 <b id="direction">—</b></span></div>
+      <div class="configuration secondary" hidden><span id="device">SegFormer-B0 · AUTO</span><span>方向 <b id="direction">—</b></span></div>
       <div class="configuration secondary"><span id="pipeline">仅分割</span><span id="depth-metric">深度：关闭</span></div>
-      <p id="status" role="status" aria-live="polite">摄像头初始化</p>
+      <p id="status" role="status" aria-live="polite">待机</p>
     </section>
+    <section class="guidance" aria-live="polite"><strong id="nav-state">待机</strong><p id="guidance-text">—</p><small id="audio-state">麦克风未启动</small> · <small id="speech-state">语音未启动</small></section>
     <nav class="toolbar" aria-label="运行控制">
       <button id="start" class="start"><svg id="start-icon" width="18" height="18" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5 3.5v13L16 10z"/></svg><span id="start-label">开始</span></button>
-      <button id="settings" class="settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M4 17h16"/><rect x="7" y="4" width="4" height="6" rx="1" fill="currentColor"/><rect x="14" y="14" width="4" height="6" rx="1" fill="currentColor"/></svg><span>设置</span></button>
+      <button id="pause-nav" disabled>暂停</button><button id="mute-nav">静音</button><button id="settings" class="settings"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M4 17h16"/><rect x="7" y="4" width="4" height="6" rx="1" fill="currentColor"/><rect x="14" y="14" width="4" height="6" rx="1" fill="currentColor"/></svg><span>设置</span></button>
     </nav>
-  </main></section><aside class="control-column">
-<section class="panel"><div class="panel-heading"><h2>输入与运行</h2><span class="chip">LOCAL</span></div><div class="source-tabs"><button id="use-sample" class="selected">室内示例</button><button id="use-street">街道示例</button><button id="use-camera">摄像头</button><button id="use-file">本地文件</button></div><p class="hint">真实短片循环播放；街道示例来自 SANPO（Google Research，CC BY 4.0）。摄像头与本地视频只在浏览器处理。</p><div class="separator"></div><div class="mode-row"><span>当前状态</span><strong id="nav-mode">等待启动</strong></div><p id="nav-instruction" class="instruction" aria-live="polite">点击画面下方「开始」，加载本地模型。</p><div class="mini-metrics"><div><span>可见目标</span><strong id="object-count">—</strong></div><div><span>检测耗时</span><strong id="detector-time">—</strong></div><div><span>证据年龄</span><strong id="evidence-age">—</strong></div></div><label class="angle-row" for="forward-angle">前方监测半角 <output id="angle-label">±15°</output></label><input id="forward-angle" type="range" min="10" max="30" step="5" value="15"><p class="hint">无连续通道时进入自由前进，仅进入提示一次。角度按 60° 视场估算；不表示米制距离或通行许可。</p></section>
-<section class="panel"><div class="panel-heading"><h2>交互与声音</h2><span class="chip">LIVE</span></div><label class="toggle"><span>语音播报 <small>系统 TTS</small></span><input id="tts-enabled" type="checkbox"></label><label class="toggle"><span>提示音</span><input id="cue-enabled" type="checkbox"></label><div class="button-row"><button id="test-sound">试听</button><button id="mute-now">停止播报</button></div><form id="command-form"><label for="command">文字指令</label><div class="command-row"><input id="command" placeholder="例如：开始导航 / 停止导航" autocomplete="off"><button type="submit" aria-label="发送指令">↑</button></div></form><button id="voice-command" class="wide">使用浏览器语音输入</button><p id="voice-status" class="hint">仅支持开始、停止等控制指令，不调用大脑。浏览器语音识别可能通过厂商网络服务处理音频；点击后才启用。</p></section>
-<section class="panel event-panel"><div class="panel-heading"><h2>事件时间线</h2><button id="export-events" class="text-button">导出 JSON ↓</button></div><ol id="event-log" aria-label="事件时间线"><li class="placeholder">启动后记录实际感知与交互事件。</li></ol></section>
-</aside></div>
-<section id="route-section" class="route-section"><div class="section-top"><h2>路线实验</h2><span>路线坐标与相机图像分开显示 · 尚无空间 AR 注册</span></div><div class="route-grid"><section class="panel route-map"><div class="panel-heading"><span class="chip" id="route-source">已保存的高德路线</span><span id="route-distance">—</span></div><svg id="route-svg" viewBox="0 0 620 290" role="img" aria-label="路线示意图，不是街景或空间 AR"><defs><pattern id="grid" width="25" height="25" patternUnits="userSpaceOnUse"><path d="M 25 0 L 0 0 0 25" fill="none" stroke="#28353b" stroke-width=".5"/></pattern></defs><rect width="620" height="290" fill="url(#grid)"/><path id="route-line" fill="none" stroke="#75dac0" stroke-width="4" stroke-linejoin="round"/><circle id="route-marker" r="7" fill="#e8fff4" stroke="#2d7764" stroke-width="5"/></svg><p id="route-description" class="hint">加载路线…</p><label for="route-progress">模拟行程进度 <output id="route-percent">0%</output></label><input id="route-progress" type="range" min="0" max="100" step=".1" value="0"><div class="button-row"><button id="confirm-route">确认目的地并回放</button><button id="pause-route">暂停</button><button id="reset-route">重置</button></div><p id="route-instruction" aria-live="polite">请先确认目的地。</p></section><section class="panel"><h2>目的地与路线数据</h2><p id="destination-name" class="destination">—</p><p class="hint">内置真实高德步行路线响应，位置沿路线模拟推进，可体验确认、转弯、到达与播报。它不与示例视频位置对应。</p><label class="file-label">导入路线 JSON<input id="route-file" type="file" accept="application/json,.json"></label><details><summary>查询自己的高德步行路线</summary><p class="hint">需要自己的 Web 服务 Key 和网络。Key 仅保存在本页内存，用于向高德发送请求，不写入仓库或事件日志。若 Key 限制或跨域策略拒绝，请使用路线 JSON 导入。</p><label for="map-key">临时 Key</label><input id="map-key" type="password" autocomplete="off" placeholder="你的高德 Web 服务 Key"><label for="route-origin">起点坐标（GCJ-02）</label><input id="route-origin" placeholder="经度,纬度"><label for="destination-query">目的地名称</label><input id="destination-query" placeholder="输入站点或地址"><button id="search-destination" class="wide">搜索候选目的地</button><div id="destination-results"></div><p id="map-status" class="hint" role="status"></p></details><p class="hint">公开 Pages 不内置密钥。当前不提供公交到站预测、街景匹配、真实定位跟随或过街判断。</p></section></div></section>
-<section id="features" class="features"><div class="section-top"><h2>能力与边界</h2><span>明确区分正在运行与未来功能</span></div><div class="feature-grid"><article class="panel"><span class="chip">WEB 已接入</span><h3>小脑 · 持续感知</h3><p>SegFormer-B0 轻量区域分割 + YOLO11n 障碍检测，支持自由前进、图像候选路径和可选相对深度。</p><small>桌面版 Mask2Former 尚未移植到 Web；这里是轻量模型体验，效果不能等同桌面版。</small></article><article class="panel"><span class="chip">WEB 已接入</span><h3>交互 · 事件驱动</h3><p>文字控制、可选浏览器语音输入、系统 TTS、提示音、路线回放与可导出的事件记录。</p><small>语音输入不等同于桌面 SenseVoice 离线 ASR。相对深度不等于 LiDAR 测距。</small></article><article class="panel future"><span class="chip">FEATURE / 未开放</span><h3>大脑 · 语义理解</h3><p>场景问答、公交与地铁等待、叫号提醒、公告理解。由视觉语言模型解释场景与用户目标。</p><button disabled>大脑功能暂不开放 Web 测试</button><small>本页不下载 Qwen / MiniCPM，不模拟「识别成功」。</small></article></div></section>
-<footer>PRTS CORE <span>研究体验平台 · 不能替代盲杖或现场判断</span><a href="./THIRD_PARTY_NOTICES.md">模型与许可</a></footer>
- <dialog id="settings-dialog" aria-labelledby="settings-title">
+  </main>
+  <dialog id="settings-dialog" aria-labelledby="settings-title">
     <form id="settings-form">
       <div class="dialog-heading"><h1 id="settings-title">设置</h1><button type="button" id="close-settings" class="icon-button" aria-label="关闭设置">×</button></div>
       <div class="settings-content">
-        <div class="field"><label for="input-source">输入源</label><select id="input-source"><option value="camera">摄像头</option><option value="sample">室内测试视频</option><option value="street">SANPO 街道示例</option><option value="file">本地视频文件</option></select></div>
+        <div class="field"><label for="input-source">输入源</label><select id="input-source"><option value="camera">摄像头</option><option value="file">本地视频文件</option></select></div>
         <div id="camera-field" class="field">
           <label for="camera-device">摄像头设备</label>
           <div class="camera-picker"><select id="camera-device" aria-describedby="camera-help"><option value="">自动（优先后置）</option></select><button type="button" id="refresh-cameras">刷新</button></div>
@@ -60,7 +51,12 @@
         <div class="field"><label class="switch-label" for="depth-enabled"><span>深度辅助（实验）</span><input id="depth-enabled" type="checkbox" role="switch"></label><span class="help">Depth Anything V2 Small · 相对深度，非米制距离。开启后与分割处理同一帧。</span></div>
         <div id="depth-view-field" class="field" hidden><label for="depth-view">显示方式</label><select id="depth-view"><option value="overlay">融合结果 · 橙色为深度排除区域</option><option value="compare">左右对比 · 仅分割 / 分割＋深度</option><option value="depth">相对深度 · 蓝远橙近</option></select></div>
         <div class="field"><div class="range-label"><label for="threshold">地面概率阈值</label><output id="threshold-value">0.55</output></div><input id="threshold" type="range" min="0.30" max="0.90" value="0.55" step="0.05"></div>
-        <dl class="model-info"><div><dt>模型</dt><dd>SegFormer-B0 / ADE20K + YOLO11n</dd></div><div><dt>执行环境</dt><dd>ONNX Runtime Web / Worker</dd></div></dl>
+        <div class="field"><label for="forward-angle">前方监测半角（假设水平视场 60°）</label><input id="forward-angle" type="range" min="10" max="30" value="15"></div>
+<div class="field"><label><input id="overlay-enabled" type="checkbox" checked> 显示感知覆盖层</label><label><input id="visual-only" type="checkbox"> 仅视觉调试（不启动麦克风）</label></div>
+<p class="help">本地口令：暂停导航、继续导航、静音、恢复播报。播报期间暂停口令识别；结束释放全部设备。首次语音模型下载约 242 MB。</p>
+<button id="test-sound" type="button">检查本地语音</button>
+<details><summary>调试信息</summary><pre id="debug-stats"></pre><pre id="event-log"></pre><button id="export-events" type="button">导出事件</button></details>
+<dl class="model-info"><div><dt>模型</dt><dd>SegFormer-B0 + YOLO11n</dd></div><div><dt>执行环境</dt><dd>ORT Web + sherpa-onnx / Workers</dd></div></dl>
         <p class="help">画面处理：完整视野，等比缩放，不裁切。比例不一致时留边。</p>
         <p id="compatibility" class="help"></p>
         <p class="help">绿色：地面预测。黄色：中心线。蓝色：候选方向。未估计实际距离与通行净空。</p>
@@ -68,4 +64,7 @@
       </div>
       <div class="dialog-actions"><button type="button" id="cancel-settings">取消</button><button type="submit" class="apply">应用</button></div>
     </form>
-  </dialog><script type="module" src="./app.mjs?v=web-core-2"></script><script type="module" src="./experience.mjs"></script></body></html>
+  </dialog>
+  <script type="module" src="./bootstrap.mjs"></script>
+</body>
+</html>

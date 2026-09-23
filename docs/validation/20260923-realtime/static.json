@@ -1,0 +1,226 @@
+{
+  "basePath": "/pages-test/PRTS_Core/",
+  "crossOriginIsolated": true,
+  "cases": {
+    "wasmSingleThread": {
+      "frames": 8,
+      "backend": "wasm",
+      "direction": "UNKNOWN",
+      "inferenceMs": 147.3150000013411,
+      "totalMs": 171.52500000223517,
+      "fps": 7.095308692545404,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0.046296296296296294,
+      "segmentationMs": 68.35500000044703,
+      "detectorMs": 78.96000000089407,
+      "detectorBackend": "wasm",
+      "nav": {
+        "mode": "free_forward",
+        "status": "FREE",
+        "direction": "UNKNOWN",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": []
+        },
+        "text": "自由前进模式"
+      },
+      "objects": 0,
+      "depthBackend": null,
+      "baselineDirection": "UNKNOWN",
+      "baselineFloorFraction": 0.046296296296296294,
+      "device": "SegFormer-B0 · CPU / 4 线程"
+    },
+    "webgpuFast": {
+      "frames": 8,
+      "backend": "webgpu",
+      "direction": "UNKNOWN",
+      "inferenceMs": 29.07999999821186,
+      "totalMs": 34.559999998658895,
+      "fps": 24.363547353265734,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0,
+      "segmentationMs": 17.320000000298023,
+      "detectorMs": 11.759999997913837,
+      "detectorBackend": "webgpu",
+      "nav": {
+        "mode": "free_forward",
+        "status": "STOP",
+        "direction": "UNKNOWN",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": [
+            {
+              "box": [
+                0.49986772537231444,
+                0.4993121676974826,
+                0.6422467231750488,
+                0.7126641167534723
+              ],
+              "score": 0.5055334568023682,
+              "class_id": 33,
+              "label": "kite",
+              "blocking": true
+            }
+          ]
+        },
+        "text": "正前方检测到障碍"
+      },
+      "objects": 1,
+      "depthBackend": null,
+      "baselineDirection": "UNKNOWN",
+      "baselineFloorFraction": 0,
+      "device": "SegFormer-B0 · nvidia · lovelace"
+    },
+    "webgpuQuality": {
+      "frames": 8,
+      "backend": "webgpu",
+      "direction": "UNKNOWN",
+      "inferenceMs": 22.274999998509884,
+      "totalMs": 30.234999999403954,
+      "fps": 21.952555789959504,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0,
+      "segmentationMs": 13.364999998360872,
+      "detectorMs": 8.910000000149012,
+      "detectorBackend": "webgpu",
+      "nav": {
+        "mode": "free_forward",
+        "status": "FREE",
+        "direction": "UNKNOWN",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": []
+        },
+        "text": "自由前进模式"
+      },
+      "objects": 0,
+      "depthBackend": null,
+      "baselineDirection": "UNKNOWN",
+      "baselineFloorFraction": 0,
+      "device": "SegFormer-B0 · nvidia · lovelace"
+    },
+    "camera": {
+      "frames": 8,
+      "backend": "webgpu",
+      "direction": "UNKNOWN",
+      "inferenceMs": 22.305000003427267,
+      "totalMs": 27.41499999910593,
+      "fps": 22.627919165183293,
+      "errors": [],
+      "ready": true,
+      "depthEnabled": false,
+      "depthMs": 0,
+      "depthRemovedFraction": 0,
+      "depthFit": null,
+      "floorFraction": 0,
+      "segmentationMs": 12.770000003278255,
+      "detectorMs": 9.535000000149012,
+      "detectorBackend": "webgpu",
+      "nav": {
+        "mode": "free_forward",
+        "status": "STOP",
+        "direction": "UNKNOWN",
+        "scan": {
+          "sector": [
+            0.2679491924311227,
+            0.55,
+            0.7320508075688773,
+            1
+          ],
+          "obstacles": [
+            {
+              "box": [
+                0.49986772537231444,
+                0.4993121676974826,
+                0.6422467231750488,
+                0.7126641167534723
+              ],
+              "score": 0.5055334568023682,
+              "class_id": 33,
+              "label": "kite",
+              "blocking": true
+            }
+          ]
+        },
+        "text": "正前方检测到障碍"
+      },
+      "objects": 1,
+      "depthBackend": null,
+      "baselineDirection": "UNKNOWN",
+      "baselineFloorFraction": 0,
+      "device": "SegFormer-B0 · nvidia · lovelace"
+    },
+    "nonIsolatedFallback": {
+      "backend": "wasm",
+      "frames": 3,
+      "errors": [],
+      "isolated": false
+    }
+  },
+  "requests": [
+    "",
+    "app.mjs",
+    "asr.worker.js",
+    "audio-input.mjs",
+    "bootstrap.mjs",
+    "camera-geometry.mjs?v=full-frame-1",
+    "core-session.mjs",
+    "corridor.mjs",
+    "depth-fusion.mjs?v=depth-1",
+    "inference.worker.mjs?v=depth-1",
+    "isolation-sw.js",
+    "models/detector-manifest.json",
+    "models/detector.onnx",
+    "models/floor-fast.onnx",
+    "models/floor-quality.onnx",
+    "navigation.mjs",
+    "pcm-worklet.js",
+    "session-ui.mjs",
+    "speech-output.mjs",
+    "speech/manifest.json",
+    "speech/sense-voice-0.bin",
+    "speech/sense-voice-1.bin",
+    "speech/sense-voice-2.bin",
+    "speech/sense-voice-3.bin",
+    "speech/sherpa-onnx-asr.js",
+    "speech/sherpa-onnx-vad.js",
+    "speech/sherpa-onnx-wasm-main-vad-asr.js",
+    "speech/sherpa-onnx-wasm-main-vad-asr.wasm",
+    "style.css?v=depth-1",
+    "vendor/ort-wasm-simd-threaded.asyncify.mjs",
+    "vendor/ort-wasm-simd-threaded.asyncify.wasm",
+    "vendor/ort.webgpu.min.mjs"
+  ],
+  "failures": [],
+  "errors": []
+}

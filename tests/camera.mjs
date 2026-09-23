@@ -49,7 +49,7 @@ async function frameBorders(){return page.locator('#result').evaluate(c=>{
   return {width:c.width,height:c.height,left:pixel(.05,.5),right:pixel(.95,.5),top:pixel(.5,.025),bottom:pixel(.5,.975)};
 });}
 try{
-  await page.goto(base,{waitUntil:'networkidle'});await page.click('#use-camera');
+  await page.goto(base,{waitUntil:'networkidle'});await page.waitForFunction(()=>window.prtsSession);await page.evaluate(()=>{document.getElementById('visual-only').checked=true;prtsSession.speech.setMuted(true);return prtsControls.source('camera');});
   await page.waitForFunction(()=>document.querySelector('video').videoWidth===1280&&document.getElementById('run-state').textContent==='预览');
   assert.equal(await page.locator('#source').evaluate(v=>getComputedStyle(v).objectFit),'contain');
   const requested=await page.evaluate(()=>window.requestedCameraConstraints.video);

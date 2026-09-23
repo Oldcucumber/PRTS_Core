@@ -6,7 +6,7 @@
 
 ## Web 快速体验
 
-[打开 GitHub Pages](https://oldcucumber.github.io/PRTS_Core/)：室内／街道示例、摄像头、本地视频，浏览器轻量地面分割、YOLO 障碍检测、自由前进提示、相对深度、TTS 和路线回放。大脑仅作为 Feature 展示，不加载 Qwen/MiniCPM；Web 轻量模型与桌面模型不同。详见 [Web 平台说明](docs/WEB_PLATFORM.md)。
+[打开 GitHub Pages](https://oldcucumber.github.io/PRTS_Core/)：真实摄像头与连续麦克风输入，浏览器本地感知、本地口令识别和导航语音输出。主页面保留摄像头与运行状态，参数在二级设置；不提供内置演示视频、地图回放或大脑功能。详见 [Web 测试说明](docs/WEB_PLATFORM.md)。
 
 ## 从这里开始
 
@@ -35,7 +35,7 @@
 | `scripts/` | 模型准备、实验比较、回放、导出、打包和验证工具 |
 | `docs/validation/20260922/` | 随 Git 保存的本轮模型结果与精简验证证据 |
 | `licenses/` | 上游许可及模型卡 |
-| `web/` | 既有浏览器地面识别原型，与本轮后端分开运行 |
+| `web/` | 浏览器本地小脑测试：连续感知、口令与播报 |
 
 `models/`、`outputs/`、`dist/`、虚拟环境、私有录音和本次新生成的大文件不随 Git 提交。历史仓库已经包含的浏览器 ONNX 和测试视频保持原状。当前完整权重与演示在本地交付 ZIP 中，因此仅克隆源码不能直接运行完整模型回放。
 

@@ -4,7 +4,7 @@
 
 ## 当前交接
 
-- [WEB_PLATFORM](WEB_PLATFORM.md)：2026-09-23 Web 小脑体验功能、运行和验证。
+- [WEB_PLATFORM](WEB_PLATFORM.md)：2026-09-23 Web 连续音视频输入、本地口令、导航播报与验证边界。
 
 - [HANDOFF](HANDOFF.md)：下一次从哪里继续。
 - [REVISION_FREE_FORWARD](REVISION_FREE_FORWARD.md)：自由前进、真实公交演示和 MiniCPM/Qwen 对比。
